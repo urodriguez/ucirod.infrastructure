@@ -1,0 +1,19 @@
+# User-specific files
+*.user
+
+# Build results
+bin
+obj
+
+# Publish project
+publish/
+
+packages
+
+/.vs
+
+Web.Debug.config
+
+*.orig
+
+Logs
