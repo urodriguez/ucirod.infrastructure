@@ -1,5 +1,4 @@
-﻿using System;
-using Logging.Dtos;
+﻿using Logging.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Logging.Controllers
