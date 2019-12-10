@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auditing", "Auditing\Auditing.csproj", "{4C423A48-8A5D-4B51-A1B5-2F032F53501E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logging", "Logging\Logging.csproj", "{5ABC06F1-95E5-40A9-9812-618621487CF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging", "Logging\Logging.csproj", "{5ABC06F1-95E5-40A9-9812-618621487CF8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.CrossCutting.LogService", "Infrastructure.CrossCutting.LogService\Infrastructure.CrossCutting.LogService.csproj", "{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{5ABC06F1-95E5-40A9-9812-618621487CF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5ABC06F1-95E5-40A9-9812-618621487CF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5ABC06F1-95E5-40A9-9812-618621487CF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

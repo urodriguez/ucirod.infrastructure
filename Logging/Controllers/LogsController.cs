@@ -29,7 +29,6 @@ namespace Logging.Controllers
                 throw new Exception($"Invalid Log Type on Log request object. Valid types are = {validTypes}");
             }
 
-            
             var searchedLogs = searchWord == "" ? _loggingDbContext.Logs : _loggingDbContext.Logs.Where(
                 pl => (type == SearchLogType.Any ? pl.Type == LogType.Trace || pl.Type == LogType.Info || pl.Type == LogType.Error : pl.Type == (LogType) type) &&
                       pl.Application.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase) || 
@@ -76,15 +75,15 @@ namespace Logging.Controllers
 
             var pagedLogs = orderedLogs.Skip(page * pageSize).Take(pageSize);
 
-            return Ok(pagedLogs.Select(ol => new LogGetDto(ol)).ToList());
+            return Ok(pagedLogs.Select(ol => new LogDtoGet(ol)).ToList());
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] LogPostDto logPostDto)
+        public IActionResult Post([FromBody] LogDtoPost logDto)
         {
             try
             {
-                var log = new Log(logPostDto.Application, logPostDto.Project, logPostDto.CorrelationId, logPostDto.Text, logPostDto.Type);
+                var log = new Log(logDto.Application, logDto.Project, logDto.CorrelationId, logDto.Text, logDto.Type);
 
                 _loggingDbContext.Logs.Add(log);
                 _loggingDbContext.SaveChanges();

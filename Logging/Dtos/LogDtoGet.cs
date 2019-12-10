@@ -3,9 +3,9 @@ using Logging.Domain;
 
 namespace Logging.Dtos
 {
-    public class LogGetDto
+    public class LogDtoGet
     {
-        public LogGetDto(Log ol)
+        public LogDtoGet(Log ol)
         {
             Application = ol.Application;
             Project = ol.Project;

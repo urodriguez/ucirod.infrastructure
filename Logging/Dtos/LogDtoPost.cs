@@ -3,7 +3,7 @@ using Logging.Domain;
 
 namespace Logging.Dtos
 {
-    public class LogPostDto
+    public class LogDtoPost
     {
         public string Application { get; set; }
         public string Project { get; set; }

@@ -1,4 +1,4 @@
-﻿namespace Auditing.Domain.Enums
+﻿namespace Auditing.Domain
 {
     public enum AuditAction
     {

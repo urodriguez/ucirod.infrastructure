@@ -1,20 +1,14 @@
-﻿using System;
-using Auditing.Domain.Enums;
+﻿using Auditing.Domain;
 
 namespace Auditing.Dtos
 {
-    public class AuditDto
+    public class AuditDtoPost
     {
         public string Application { get; set; }
         public string User { get; set; }
         public string Entity { get; set; }
         public string OldEntity { get; set; }
+        public string EntityName { get; set; }
         public AuditAction Action { get; set; }
-        public DateTime Date { get; set; }
-
-        public bool IsCreate()
-        {
-            return Action == AuditAction.Create;
-        }
     }
 }
