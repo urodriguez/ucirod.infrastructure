@@ -2,8 +2,8 @@
 {
     public enum AuditAction
     {
-        Create,
-        Delete,
-        Update
+        Create = 1,
+        Update = 2,
+        Delete = 3
     }
 }

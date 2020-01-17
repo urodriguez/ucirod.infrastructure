@@ -7,6 +7,7 @@ using Auditing.Infrastructure.Persistence;
 using Infrastructure.CrossCutting.LogService;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Auditing.Controllers
 {
@@ -86,22 +87,45 @@ namespace Auditing.Controllers
         [HttpPost]
         public IActionResult Audit([FromBody] AuditDtoPost auditDto)
         {
+            //TODO: REFACTOR
             try
             {
                 _logService.LogInfoMessage($"AuditController.Audit | INPUT | entity={auditDto.EntityName} - application={auditDto.Application} - user={auditDto.User} - action={auditDto.Action}");
 
-                var audit = new Audit(auditDto.Application, auditDto.User, auditDto.EntityName, auditDto.Action);
+                var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.Entity, auditDto.EntityName, auditDto.Action);
 
-                audit.ValidateSerializedEntity(auditDto.Entity);
-                audit.ValidateOldSerializedEntity(auditDto.OldEntity, auditDto.Action);
+                JObject entityObject;
+                try
+                {
+                    entityObject = JObject.Parse(auditDto.Entity);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($"An error has occurred trying to parse Entity.Name={auditDto.EntityName}. FullStack trace is: {e.Message}");
+                }
 
-                var entityChanges = _changesService.GetChanges(auditDto.Entity, auditDto.OldEntity, auditDto.Action);
+                var idProperty = entityObject.Properties().FirstOrDefault(p => p.Name == "Id");
+
+                if (idProperty == null) throw new Exception($"Entity.Name={auditDto.EntityName} requires an \"Id\" property to be audited");
+                if (string.IsNullOrEmpty(idProperty.Value.ToString())) throw new Exception($"Entity.Name={auditDto.EntityName} requires a value not null or empty on \"Id\" property to be audited");
+
+                audit.EntityId = idProperty.Value.ToString();
+
+                var oldEntity = _auditingDbContext.Audits.Where(
+                    a => a.EntityId == audit.EntityId && a.EntityName == audit.EntityName && a.Environment == audit.Environment
+                ).OrderByDescending(
+                    a => a.CreationDate
+                ).FirstOrDefault()?.Entity;
+
+                audit.ValidateOldSerializedEntity(oldEntity, auditDto.Action);
+
+                var entityChanges = _changesService.GetChanges(auditDto.Entity, oldEntity, auditDto.Action);
                 audit.Changes = JsonConvert.SerializeObject(entityChanges, Formatting.Indented);
 
                 _auditingDbContext.Audits.Add(audit);
                 _auditingDbContext.SaveChanges();
 
-                _logService.LogInfoMessage($"AuditController.Audit | Entity saved | audit.Id={audit.Id}");
+                _logService.LogInfoMessage($"AuditController.Audit | audit registry saved | audit.Id={audit.Id} - audit.EntityId={audit.EntityId}");
 
                 return Ok();
             }
