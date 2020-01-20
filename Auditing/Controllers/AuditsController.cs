@@ -134,6 +134,7 @@ namespace Auditing.Controllers
             }
             catch (Exception e)
             {
+                _logService.LogInfoMessage($"AuditController.Audit | An exception occurred trying to audit entity | audit={JsonConvert.SerializeObject(auditDto, Formatting.Indented)} - exception={e}");
                 return BadRequest(e.Message);
             }
         }
