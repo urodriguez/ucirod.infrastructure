@@ -38,7 +38,6 @@ namespace Auditing
             var connectionString = envConnectionString[env];
             services.AddDbContext<AuditingDbContext>(options => options.UseSqlServer(connectionString));
 
-            services.AddSingleton<IChangesService, ChangesService>();
             services.AddSingleton<ILogService>(s => new LogService("Infrastructure", "Auditing", env));
         }
 

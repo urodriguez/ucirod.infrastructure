@@ -12,7 +12,7 @@ namespace Auditing.Domain
             if (string.IsNullOrEmpty(user)) throw new Exception("User field can not be null or empty");
             if (string.IsNullOrEmpty(entity)) throw new Exception("Entity can not be null or empty");
             if (string.IsNullOrEmpty(entityName)) throw new Exception("EntityName field can not be null or empty");
-            if(action != AuditAction.Create && action != AuditAction.Update && action != AuditAction.Delete) throw new Exception("Invalid AuditAction code. Valid codes are: Create = 0, Update = 1, Delete = 2");
+            if(action != AuditAction.Create && action != AuditAction.Update && action != AuditAction.Delete) throw new Exception("Invalid AuditAction code. Valid codes are: Create = 1, Update = 2, Delete = 3");
 
             Id = Guid.NewGuid();
             Application = application;
@@ -35,14 +35,14 @@ namespace Auditing.Domain
         public AuditAction Action { get; set; }
         public DateTime CreationDate { get; set; }
 
-        public void ValidateSerializedEntity(string serializedEntity)
+        public void SetEntityId(string entityId)
         {
-            
+            if (string.IsNullOrEmpty(entityId)) throw new Exception($"Property \"Id\" on Entity.Name={EntityName} is null or empty");
         }
 
-        public void ValidateOldSerializedEntity(string serializedOldEntity, AuditAction action)
+        public static void ValidateForAction(Audit previousAudit, AuditAction auditAction)
         {
-            if ((action == AuditAction.Update || action == AuditAction.Delete) && string.IsNullOrEmpty(serializedOldEntity))
+            if ((auditAction == AuditAction.Update || auditAction == AuditAction.Delete) && previousAudit == null)
                 throw new Exception("None previous data found. History data is stored in order to calculate changes on Update/Delete action");
         }
     }
