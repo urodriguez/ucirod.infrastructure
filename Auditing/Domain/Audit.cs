@@ -38,6 +38,8 @@ namespace Auditing.Domain
         public void SetEntityId(string entityId)
         {
             if (string.IsNullOrEmpty(entityId)) throw new Exception($"Property \"Id\" on Entity.Name={EntityName} is null or empty");
+
+            EntityId = entityId;
         }
 
         public static void ValidateForAction(Audit previousAudit, AuditAction auditAction)

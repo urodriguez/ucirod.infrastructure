@@ -116,7 +116,7 @@ namespace Auditing.Controllers
 
                 Domain.Audit.ValidateForAction(previousAudit, auditDto.Action);
 
-                var entityChanges = GetChanges(auditDto.Entity, previousAudit.Entity, auditDto.Action);
+                var entityChanges = GetChanges(auditDto.Entity, previousAudit?.Entity, auditDto.Action);
 
                 if (entityChanges.Any()) {
                     audit.Changes = JsonConvert.SerializeObject(entityChanges, Formatting.Indented);
