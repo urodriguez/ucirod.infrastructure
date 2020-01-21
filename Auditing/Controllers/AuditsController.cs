@@ -92,15 +92,7 @@ namespace Auditing.Controllers
 
                 var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.Entity, auditDto.EntityName, auditDto.Action);
 
-                JObject entityObject;
-                try
-                {
-                    entityObject = JObject.Parse(audit.Entity);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception($"An error has occurred trying to parse Entity.Name={audit.EntityName}. FullStack trace is: {e.Message}");
-                }
+                JObject entityObject = ExtractEntityParsed(audit);
 
                 var idProperty = entityObject.Properties().FirstOrDefault(p => p.Name == "Id");
 
@@ -119,11 +111,12 @@ namespace Auditing.Controllers
                 Domain.Audit.ValidateForAction(previousAudit, audit.Action);
 
                 var entityChanges = GetChanges(audit.Entity, previousAudit?.Entity, audit.Action);
-                if (!entityChanges.Any()) {
+                if (!entityChanges.Any())
+                {
                     _logService.LogInfoMessage($"AuditController.Audit | No changes were detected | audit.EntityId={audit.EntityId}");
                     return Ok();
                 }
-                audit.Changes = JsonConvert.SerializeObject(entityChanges, Formatting.Indented);
+                audit.SetChanges(JsonConvert.SerializeObject(entityChanges, Formatting.Indented));
 
                 audit.ClearEntityForDelete();
 
@@ -139,6 +132,21 @@ namespace Auditing.Controllers
                 _logService.LogInfoMessage($"AuditController.Audit | An exception occurred trying to audit entity | audit={JsonConvert.SerializeObject(auditDto, Formatting.Indented)} - exception={e}");
                 return BadRequest(e.Message);
             }
+        }
+
+        private static JObject ExtractEntityParsed(Audit audit)
+        {
+            JObject entityObject;
+            try
+            {
+                entityObject = JObject.Parse(audit.Entity);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"An error has occurred trying to parse Entity.Name={audit.EntityName}. FullStack trace is: {e.Message}");
+            }
+
+            return entityObject;
         }
 
         private static IEnumerable<EntityChange> GetChanges(string serializedEntity, string serializedOldEntity, AuditAction auditAction)
