@@ -45,7 +45,15 @@ namespace Auditing.Domain
         public static void ValidateForAction(Audit previousAudit, AuditAction auditAction)
         {
             if ((auditAction == AuditAction.Update || auditAction == AuditAction.Delete) && previousAudit == null)
-                throw new Exception("None previous data found. History data is stored in order to calculate changes on Update/Delete action");
+                throw new Exception("None previous data found. History data is stored in order to calculate changes on 'Update/Delete' action");
+
+            if (auditAction == AuditAction.Create && previousAudit != null)
+                throw new Exception("A previous entity was audited for 'Create' action. Only 'Update/Delete' actions are allowed");
+        }
+
+        public void ClearEntityForDelete()
+        {
+            if (Action == AuditAction.Delete) Entity = null;
         }
     }
 }

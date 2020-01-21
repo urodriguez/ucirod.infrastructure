@@ -88,25 +88,27 @@ namespace Auditing.Controllers
         {
             try
             {
-                _logService.LogInfoMessage($"AuditController.Audit | INPUT | entity={auditDto.EntityName} - application={auditDto.Application} - user={auditDto.User} - action={auditDto.Action}");
+                _logService.LogInfoMessage($"AuditController.Audit | Init");
 
                 var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.Entity, auditDto.EntityName, auditDto.Action);
 
                 JObject entityObject;
                 try
                 {
-                    entityObject = JObject.Parse(auditDto.Entity);
+                    entityObject = JObject.Parse(audit.Entity);
                 }
                 catch (Exception e)
                 {
-                    throw new Exception($"An error has occurred trying to parse Entity.Name={auditDto.EntityName}. FullStack trace is: {e.Message}");
+                    throw new Exception($"An error has occurred trying to parse Entity.Name={audit.EntityName}. FullStack trace is: {e.Message}");
                 }
 
                 var idProperty = entityObject.Properties().FirstOrDefault(p => p.Name == "Id");
 
-                if (idProperty == null) throw new Exception($"Entity.Name={auditDto.EntityName} requires an \"Id\" property to be audited");
+                if (idProperty == null) throw new Exception($"Entity.Name={audit.EntityName} requires an \"Id\" property to be audited");
 
                 audit.SetEntityId(idProperty.Value.ToString());
+
+                _logService.LogInfoMessage($"AuditController.Audit | Audit entity ready | entity={audit.EntityName} - entityId={audit.EntityId} - application={audit.Application} - user={audit.User} - action={audit.Action}");
 
                 var previousAudit = _auditingDbContext.Audits.Where(
                     a => a.EntityId == audit.EntityId && a.EntityName == audit.EntityName && a.Environment == audit.Environment
@@ -114,21 +116,21 @@ namespace Auditing.Controllers
                     a => a.CreationDate
                 ).FirstOrDefault();
 
-                Domain.Audit.ValidateForAction(previousAudit, auditDto.Action);
+                Domain.Audit.ValidateForAction(previousAudit, audit.Action);
 
-                var entityChanges = GetChanges(auditDto.Entity, previousAudit?.Entity, auditDto.Action);
-
-                if (entityChanges.Any()) {
-                    audit.Changes = JsonConvert.SerializeObject(entityChanges, Formatting.Indented);
-
-                    _auditingDbContext.Audits.Add(audit);
-                    _auditingDbContext.SaveChanges();
-
-                    _logService.LogInfoMessage($"AuditController.Audit | Audit registry saved | audit.Id={audit.Id} - audit.EntityId={audit.EntityId}");
-                } else
-                {
+                var entityChanges = GetChanges(audit.Entity, previousAudit?.Entity, audit.Action);
+                if (!entityChanges.Any()) {
                     _logService.LogInfoMessage($"AuditController.Audit | No changes were detected | audit.EntityId={audit.EntityId}");
+                    return Ok();
                 }
+                audit.Changes = JsonConvert.SerializeObject(entityChanges, Formatting.Indented);
+
+                audit.ClearEntityForDelete();
+
+                _auditingDbContext.Audits.Add(audit);
+                _auditingDbContext.SaveChanges();
+
+                _logService.LogInfoMessage($"AuditController.Audit | Audit registry saved | audit.Id={audit.Id} - audit.EntityId={audit.EntityId}");
 
                 return Ok();
             }
