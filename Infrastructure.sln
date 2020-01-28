@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging", "Logging\Logging.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.CrossCutting.LogService", "Infrastructure.CrossCutting.LogService\Infrastructure.CrossCutting.LogService.csproj", "{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentication", "Authentication\Authentication.csproj", "{B3907642-8A18-4DC8-A1BB-E17DCD4FACEA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RESTfulApi", "RESTfulApi\RESTfulApi.csproj", "{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +31,14 @@ Global
 		{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAC8EC46-595B-419C-BCE8-6C71EDEACFFF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B3907642-8A18-4DC8-A1BB-E17DCD4FACEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B3907642-8A18-4DC8-A1BB-E17DCD4FACEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B3907642-8A18-4DC8-A1BB-E17DCD4FACEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B3907642-8A18-4DC8-A1BB-E17DCD4FACEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
