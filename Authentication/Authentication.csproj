@@ -14,4 +14,8 @@
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="5.6.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Infrastructure.CrossCutting.LogService\Infrastructure.CrossCutting.LogService.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -18,12 +18,14 @@ namespace Infrastructure.CrossCutting.LogService
             _application = application;
             _project = project;
 
+            const string loggingProjectName = "logging";
+
             var envUrl = new Dictionary<string, string>
             {
-                { "DEV", "http://www.ucirod.infrastructure-test.com:40000/logging/api" },
-                { "TEST", "http://www.ucirod.infrastructure-test.com:40000/logging/api" },
-                { "STAGE", "http://www.ucirod.infrastructure-stage.com:40000/logging/api" },
-                { "PROD", "http://www.ucirod.infrastructure.com:40000/logging/api" }
+                { "DEV",   $"http://www.ucirod.infrastructure-test.com:40000/{loggingProjectName}/api" },
+                { "TEST",  $"http://www.ucirod.infrastructure-test.com:40000/{loggingProjectName}/api" },
+                { "STAGE", $"http://www.ucirod.infrastructure-stage.com:40000/{loggingProjectName}/api" },
+                { "PROD",  $"http://www.ucirod.infrastructure.com:40000/{loggingProjectName}/api" }
             };
 
             _restClient = new RestClient(envUrl[env]);

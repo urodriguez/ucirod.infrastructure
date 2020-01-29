@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using System.Security.Claims;
+using Infrastructure.CrossCutting.LogService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
@@ -10,10 +12,23 @@ namespace Authentication.Controllers
     [ApiController]
     public class TokensController : ControllerBase
     {
+        private readonly ILogService _logService;
+
+        public TokensController(ILogService logService)
+        {
+            _logService = logService;
+        }
+
         [HttpPost]
         public IActionResult Create([FromBody] TokenCreateDto tokenCreateDto)
         {
-            if (!CredentialsAreValid(tokenCreateDto.Account)) return Unauthorized();
+            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Validating credentials | account.Id={tokenCreateDto.Account.Id}");
+            if (!CredentialsAreValid(tokenCreateDto.Account))
+            {
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={tokenCreateDto.Account.Id}");
+                return Unauthorized();
+            }
+            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={tokenCreateDto.Account.Id}");
 
             // create a claimsIdentity
             var claimsIdentity = new ClaimsIdentity(tokenCreateDto.Claims.Select(c => new Claim(c.Type, c.Value)));
@@ -33,6 +48,7 @@ namespace Authentication.Controllers
 
             // create JWT security token based on descriptor
             var jwtSecurityToken = tokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
+            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token created successfully | account.Id={tokenCreateDto.Account.Id}");
 
             return Ok(new
             {
@@ -46,7 +62,13 @@ namespace Authentication.Controllers
         [HttpPost]
         public IActionResult Validate([FromBody] TokenValidateDto tokenValidateDto)
         {
-            if (!CredentialsAreValid(tokenValidateDto.Account)) return Unauthorized();
+            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Validating credentials | account.Id={tokenValidateDto.Account.Id}");
+            if (!CredentialsAreValid(tokenValidateDto.Account))
+            {
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={tokenValidateDto.Account.Id}");
+                return Unauthorized();
+            }
+            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={tokenValidateDto.Account.Id}");
 
             var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
 
@@ -61,10 +83,12 @@ namespace Authentication.Controllers
             };
 
             var identity = tokenHandler.ValidateToken(tokenValidateDto.Token, validationParameters, out var validatedToken);
+            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | account.Id={tokenValidateDto.Account.Id}");
 
             var internalClaimTypes = new[] {"nbf", "exp", "iat", "iss"};
 
             var claims = identity.Claims.Where(c => !internalClaimTypes.Contains(c.Type));
+            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | account.Id={tokenValidateDto.Account.Id} - claims.Count={claims.Count()}");
 
             return Ok(new
             {
