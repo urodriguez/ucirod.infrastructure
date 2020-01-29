@@ -10,19 +10,13 @@ namespace Authentication.Controllers
     [ApiController]
     public class TokensController : ControllerBase
     {
-        [HttpGet]
-        public IActionResult Get()
-        {
-            return Ok(new[] { "hola", "jpñla" }) ;
-        }
-
         [HttpPost]
-        public IActionResult Create([FromBody] TokenCreateDto tokenDto)
+        public IActionResult Create([FromBody] TokenCreateDto tokenCreateDto)
         {
-            if (!CredentialsAreValid(tokenDto.Account)) return Unauthorized();
+            if (!CredentialsAreValid(tokenCreateDto.Account)) return Unauthorized();
 
             // create a claimsIdentity
-            var claimsIdentity = new ClaimsIdentity(tokenDto.Claims.Select(c => new Claim(c.Type, c.Value)));
+            var claimsIdentity = new ClaimsIdentity(tokenCreateDto.Claims.Select(c => new Claim(c.Type, c.Value)));
 
             // create token to the user
             var tokenHandler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
@@ -33,8 +27,8 @@ namespace Authentication.Controllers
                 Issuer = UciRodToken.Issuer,
                 Subject = claimsIdentity,
                 NotBefore = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(UciRodToken.Expire)),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(UciRodToken.Secret)), SecurityAlgorithms.HmacSha256Signature)
+                Expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(tokenCreateDto.Expire ?? UciRodToken.Expire)),
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenCreateDto.Account.Secret)), SecurityAlgorithms.HmacSha256Signature)
             };
 
             // create JWT security token based on descriptor
@@ -62,11 +56,24 @@ namespace Authentication.Controllers
                 ValidateIssuerSigningKey = true,
                 ValidateLifetime = true,
                 LifetimeValidator = LifetimeValidator,
-                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(UciRodToken.Secret)),
+                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenValidateDto.Account.Secret)),
                 ValidateAudience = false
             };
 
-            return Ok(tokenHandler.ValidateToken(tokenValidateDto.Token, validationParameters, out var validatedToken).Identity);
+            var identity = tokenHandler.ValidateToken(tokenValidateDto.Token, validationParameters, out var validatedToken);
+
+            var internalClaimTypes = new[] {"nbf", "exp", "iat", "iss"};
+
+            var claims = identity.Claims.Where(c => !internalClaimTypes.Contains(c.Type));
+
+            return Ok(new
+            {
+                Claims = claims.Select(c => new
+                {
+                    c.Type,
+                    c.Value
+                })
+            });
         }
 
         private static bool CredentialsAreValid(Account account)
