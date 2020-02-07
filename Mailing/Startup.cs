@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace Authentication
+namespace Mailing
 {
     public class Startup
     {
@@ -29,7 +29,7 @@ namespace Authentication
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             var env = Configuration.GetValue<string>("Environment");
-            services.AddSingleton<ILogService>(s => new LogService("Infrastructure", "Authentication", env));
+            services.AddSingleton<ILogService>(s => new LogService("Infrastructure", "Mailing", env));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

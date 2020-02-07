@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
+using Authentication.Domain;
+using Authentication.Dtos;
 using Infrastructure.CrossCutting.LogService;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;

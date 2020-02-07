@@ -1,4 +1,4 @@
-﻿namespace Authentication
+﻿namespace Authentication.Domain
 {
     public class Account
     {

@@ -1,4 +1,6 @@
-﻿namespace Authentication
+﻿using Authentication.Domain;
+
+namespace Authentication.Dtos
 {
     public class TokenValidateDto
     {

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using Authentication.Domain;
 
-namespace Authentication
+namespace Authentication.Dtos
 {
     public class TokenCreateDto
     {
