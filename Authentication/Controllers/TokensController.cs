@@ -106,7 +106,7 @@ namespace Authentication.Controllers
             }
             catch (SecurityTokenInvalidSignatureException stise)
             {
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidSignatureException | account.Id={tokenValidateDto.Account.Id}");
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidSignatureException | account.Id={tokenValidateDto.Account.Id}");
                 return Ok(new
                 {
                     TokenStatus = TokenStatus.Invalid,
@@ -114,7 +114,7 @@ namespace Authentication.Controllers
             }
             catch (SecurityTokenInvalidLifetimeException stile)
             {
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | account.Id={tokenValidateDto.Account.Id}");
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | account.Id={tokenValidateDto.Account.Id}");
                 return Ok(new
                 {
                     TokenStatus = TokenStatus.Expirated,
@@ -122,7 +122,7 @@ namespace Authentication.Controllers
             }
             catch (Exception e)
             {
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | account.Id={tokenValidateDto.Account.Id} - fullStackTrace={e}");
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | account.Id={tokenValidateDto.Account.Id} - fullStackTrace={e}");
                 return Ok(new
                 {
                     TokenStatus = TokenStatus.Unprocessed,
