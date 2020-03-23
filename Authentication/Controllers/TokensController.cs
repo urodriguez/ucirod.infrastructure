@@ -44,7 +44,7 @@ namespace Authentication.Controllers
                 Issuer = UciRodToken.Issuer,
                 Subject = claimsIdentity,
                 NotBefore = DateTime.UtcNow,
-                Expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(tokenCreateDto.Expire ?? UciRodToken.Expire)),
+                Expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(tokenCreateDto.Expires ?? UciRodToken.Expires)),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenCreateDto.Account.SecretKey)), SecurityAlgorithms.HmacSha256Signature)
             };
 

@@ -2,7 +2,7 @@
 {
     public class UciRodToken
     {
-        public const int Expire = 60;
+        public const int Expires = 60;
         public const string Issuer = "UciRod.Infrastructure";
     }
 }

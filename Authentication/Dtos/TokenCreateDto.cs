@@ -11,7 +11,7 @@ namespace Authentication.Dtos
         }
 
         public Account Account { get; set; }
-        public int? Expire { get; set; }
+        public int? Expires { get; set; }
         public IList<UciRodClaim> Claims { get; set; }
     }
 }
