@@ -45,7 +45,7 @@ namespace Authentication.Controllers
                 Subject = claimsIdentity,
                 NotBefore = DateTime.UtcNow,
                 Expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(tokenCreateDto.Expire ?? UciRodToken.Expire)),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenCreateDto.Account.Secret)), SecurityAlgorithms.HmacSha256Signature)
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenCreateDto.Account.SecretKey)), SecurityAlgorithms.HmacSha256Signature)
             };
 
             // create JWT security token based on descriptor
@@ -80,31 +80,59 @@ namespace Authentication.Controllers
                 ValidateIssuerSigningKey = true,
                 ValidateLifetime = true,
                 LifetimeValidator = LifetimeValidator,
-                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenValidateDto.Account.Secret)),
+                IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenValidateDto.Account.SecretKey)),
                 ValidateAudience = false
             };
 
-            var identity = tokenHandler.ValidateToken(tokenValidateDto.Token, validationParameters, out var validatedToken);
-            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | account.Id={tokenValidateDto.Account.Id}");
-
-            var internalClaimTypes = new[] {"nbf", "exp", "iat", "iss"};
-
-            var claims = identity.Claims.Where(c => !internalClaimTypes.Contains(c.Type));
-            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | account.Id={tokenValidateDto.Account.Id} - claims.Count={claims.Count()}");
-
-            return Ok(new
+            try
             {
-                Claims = claims.Select(c => new
+                var identity = tokenHandler.ValidateToken(tokenValidateDto.Token, validationParameters, out var validatedToken);
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | account.Id={tokenValidateDto.Account.Id}");
+
+                var internalClaimTypes = new[] { "nbf", "exp", "iat", "iss" };
+
+                var claims = identity.Claims.Where(c => !internalClaimTypes.Contains(c.Type));
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | account.Id={tokenValidateDto.Account.Id} - claims.Count={claims.Count()}");
+
+                return Ok(new
                 {
-                    c.Type,
-                    c.Value
-                })
-            });
+                    TokenStatus = TokenStatus.Valid,
+                    Claims = claims.Select(c => new
+                    {
+                        c.Type,
+                        c.Value
+                    })
+                });
+            }
+            catch (SecurityTokenInvalidSignatureException stise)
+            {
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidSignatureException | account.Id={tokenValidateDto.Account.Id}");
+                return Ok(new
+                {
+                    TokenStatus = TokenStatus.Invalid,
+                });
+            }
+            catch (SecurityTokenInvalidLifetimeException stile)
+            {
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | account.Id={tokenValidateDto.Account.Id}");
+                return Ok(new
+                {
+                    TokenStatus = TokenStatus.Expirated,
+                });
+            }
+            catch (Exception e)
+            {
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | account.Id={tokenValidateDto.Account.Id} - fullStackTrace={e}");
+                return Ok(new
+                {
+                    TokenStatus = TokenStatus.Unprocessed,
+                });
+            }
         }
 
         private static bool CredentialsAreValid(Account account)
         {
-            return account.Id == "InventApp" && account.Secret.Equals("1nfr4structur3_1nv3nt4pp");
+            return account.Id == "InventApp" && account.SecretKey.Equals("1nfr4structur3_1nv3nt4pp");
         }
 
         private bool LifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
