@@ -104,14 +104,6 @@ namespace Authentication.Controllers
                     })
                 });
             }
-            catch (SecurityTokenInvalidSignatureException stise)
-            {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidSignatureException | account.Id={tokenValidateDto.Account.Id}");
-                return Ok(new
-                {
-                    TokenStatus = TokenStatus.Invalid,
-                });
-            }
             catch (SecurityTokenInvalidLifetimeException stile)
             {
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | account.Id={tokenValidateDto.Account.Id}");
@@ -125,7 +117,7 @@ namespace Authentication.Controllers
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | account.Id={tokenValidateDto.Account.Id} - fullStackTrace={e}");
                 return Ok(new
                 {
-                    TokenStatus = TokenStatus.Unprocessed,
+                    TokenStatus = TokenStatus.Invalid,
                 });
             }
         }

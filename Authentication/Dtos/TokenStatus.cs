@@ -4,7 +4,6 @@
     {
         Valid,
         Invalid,
-        Expirated,
-        Unprocessed
+        Expirated
     }
 }

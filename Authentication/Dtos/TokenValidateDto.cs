@@ -7,6 +7,5 @@ namespace Authentication.Dtos
         public Account Account { get; set; }
         public TokenStatus TokenStatus { get; set; }
         public string Token { get; set; }
-
     }
 }
