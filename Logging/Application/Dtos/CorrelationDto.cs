@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Logging.Dtos
+namespace Logging.Application.Dtos
 {
     public class CorrelationDto
     {

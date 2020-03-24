@@ -15,7 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Infrastructure.CrossCutting.LogService\Infrastructure.CrossCutting.LogService.csproj" />
+    <ProjectReference Include="..\Infrastructure.CrossCutting.Authentication\Infrastructure.CrossCutting.Authentication.csproj" />
+    <ProjectReference Include="..\Logging\Logging.csproj" />
   </ItemGroup>
 
 </Project>

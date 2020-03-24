@@ -4,11 +4,15 @@ using System.Linq;
 using Auditing.Domain;
 using Auditing.Dtos;
 using Auditing.Infrastructure.Persistence;
-using Infrastructure.CrossCutting.LogService;
 using Microsoft.AspNetCore.Mvc;
 using JsonDiffPatchDotNet;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Infrastructure.CrossCutting.Authentication;
+using System.Reflection;
+using Logging.Application;
+using Logging.Application.Dtos;
+using Microsoft.Extensions.Configuration;
 
 namespace Auditing.Controllers
 {
@@ -17,70 +21,22 @@ namespace Auditing.Controllers
     public class AuditsController : ControllerBase
     {
         private readonly AuditingDbContext _auditingDbContext;
+        private readonly IClientService _clientService;
         private readonly ILogService _logService;
 
-        public AuditsController(AuditingDbContext auditingDbContext, ILogService logService)
+        public AuditsController(AuditingDbContext auditingDbContext, IClientService clientService, ILogService logService, ICorrelationService correlationService, IConfiguration config)
         {
             _auditingDbContext = auditingDbContext;
+            _clientService = clientService;
+
             _logService = logService;
-        }
-
-        [HttpGet]
-        public IActionResult Get(int page = 0, int pageSize = 10, string sortBy = "creationDate", string sortOrder = "desc", DateTime? sinceDate = null, DateTime? toDate = null)
-        {
-            _logService.LogInfoMessage($"AuditController.Get | INPUT | page={page} - pageSize={pageSize} - sortBy={sortBy} - sortOrder={sortOrder} - sinceDate={sinceDate} - toDate={toDate}");
-
-            if (sortOrder != "asc" && sortOrder != "desc") return BadRequest($"Invalid sortOrder = {sortBy} parameter. Only 'asc' and 'desc' are allowed");
-
-            IQueryable<Audit> searchedAudits;
-            if (sinceDate == null && toDate == null)
+            _logService.Configure(new LogSettings
             {
-                sinceDate = DateTime.UtcNow.AddDays(-30);
-                searchedAudits = _auditingDbContext.Audits.Where(sl => sinceDate <= sl.CreationDate);
-            }
-            else if (sinceDate != null && toDate != null)
-            {
-                var toDateAtEnd = toDate.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
-                searchedAudits = _auditingDbContext.Audits.Where(sl => sinceDate <= sl.CreationDate && sl.CreationDate <= toDateAtEnd);
-            }
-            else
-            {
-                var toDateAtEnd = toDate.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
-                searchedAudits = _auditingDbContext.Audits.Where(pl => sinceDate == null && toDate != null ? pl.CreationDate <= toDateAtEnd : sinceDate <= pl.CreationDate);
-            }
-            _logService.LogInfoMessage($"AuditController.Get | Searching done");
-
-            IQueryable<Audit> sortedAudits;
-            switch (sortBy)
-            {
-                case "application":
-                    sortedAudits = sortOrder == "asc" ? searchedAudits.OrderBy(pl => pl.Application) : searchedAudits.OrderByDescending(pl => pl.Application);
-                    break;
-                case "user":
-                    sortedAudits = sortOrder == "asc" ? searchedAudits.OrderBy(pl => pl.User) : searchedAudits.OrderByDescending(pl => pl.User);
-                    break;
-                case "action":
-                    sortedAudits = sortOrder == "asc" ? searchedAudits.OrderBy(pl => pl.Action) : searchedAudits.OrderByDescending(pl => pl.Action);
-                    break;
-                case "creationDate":
-                    sortedAudits = sortOrder == "asc" ? searchedAudits.OrderBy(pl => pl.CreationDate) : searchedAudits.OrderByDescending(pl => pl.CreationDate);
-                    break;
-
-                default:
-                    return BadRequest($"Invalid sortBy = {sortBy} parameter");
-            }
-            _logService.LogInfoMessage($"AuditController.Get | Sorting done");
-
-            var pagedAudits = sortedAudits.Skip(page * pageSize).Take(pageSize);
-            _logService.LogInfoMessage($"AuditController.Get | Paging done");
-
-            return Ok(pagedAudits.Select(pa => new AuditDtoGet
-            {
-                User = pa.User,
-                Changes = JsonConvert.DeserializeObject<IEnumerable<EntityChange>>(pa.Changes),
-                Action = pa.Action,
-                CreationDate = pa.CreationDate
-            }).ToList());
+                Application = "Infrastructure",
+                Project = "Auditing",
+                Environment = config.GetValue<string>("Environment"),
+                CorrelationId = correlationService.Create(null, false).Id
+            });
         }
 
         [HttpPost]
@@ -88,7 +44,17 @@ namespace Auditing.Controllers
         {
             try
             {
-                _logService.LogInfoMessage($"AuditController.Audit | Init");
+                if (!_clientService.CredentialsAreValid(auditDto.Account))
+                {
+                    if (auditDto.Account == null)
+                    {
+                        _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | BadRequest | account == null");
+                        return BadRequest("Credentials not provided");
+                    }
+                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={auditDto.Account.Id}");
+                    return Unauthorized();
+                }
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={auditDto.Account.Id}");
 
                 var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.Entity, auditDto.EntityName, auditDto.Action);
 

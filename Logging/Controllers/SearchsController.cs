@@ -10,11 +10,11 @@ namespace Logging.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class LogsController : ControllerBase
+    public class SearchsController : ControllerBase
     {
         private readonly ILogService _logService;
 
-        public LogsController(ILogService logService, ICorrelationService correlationService, IConfiguration config)
+        public SearchsController(ILogService logService, ICorrelationService correlationService, IConfiguration config)
         {
             _logService = logService;
             _logService.Configure(new LogSettings
@@ -27,31 +27,27 @@ namespace Logging.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] LogDtoPost logDto)
+        public IActionResult Search([FromBody] LogSearchRequestDto logSearchRequestDto)
         {
             try
             {
-                _logService.Log(logDto);
+                var logs = _logService.Search(logSearchRequestDto);
+
+                return Ok(logs);
             }
             catch (UnauthorizedAccessException uae)
             {
                 return Unauthorized();
             }
-            catch (ArgumentNullException ane)
+            catch (ArgumentOutOfRangeException argumentOutOfRangeException)
             {
-                return BadRequest(ane.Message);
-            }
-            catch (ArgumentOutOfRangeException aore)
-            {
-                return BadRequest(aore.Message);
+                return BadRequest(argumentOutOfRangeException.Message);
             }
             catch (Exception e)
             {
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | e.FullStackTrace={e}");
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
-
-            return Ok();
         }
     }
 }

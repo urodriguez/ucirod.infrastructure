@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Infrastructure.CrossCutting.Authentication;
+using Microsoft.AspNetCore.Mvc;
 
 namespace RESTfulApi.Controllers
 {
@@ -16,7 +17,7 @@ namespace RESTfulApi.Controllers
             return Ok(new Account
             {
                 Id = "InventApp",
-                Secret = "1nfr4structur3_1nv3nt4pp"
+                SecretKey = "1nfr4structur3_1nv3nt4pp"
             });
         }
     }

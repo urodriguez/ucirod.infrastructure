@@ -10,7 +10,7 @@ namespace Mailing.Domain
         {
             SmtpConfiguration = new SmtpServerConfiguration("UciRod", "ucirod.infrastructure@gmail.com", "uc1r0d.1nfr4structur3", "smtp.gmail.com", 465, true);
 
-            if (string.IsNullOrEmpty(to)) throw new Exception("Field 'to' can not be null or empty");
+            if (string.IsNullOrEmpty(to)) throw new ArgumentNullException("Field 'to' can not be null or empty");
 
             To = to;
             Subject = subject;
@@ -31,7 +31,7 @@ namespace Mailing.Domain
         {
             SmtpConfiguration = new SmtpServerConfiguration(senderName, senderEmail, senderPassword, hostName, hostPort, hostUseSsl);
 
-            if (string.IsNullOrEmpty(to)) throw new Exception("Field 'to' can not be null or empty");
+            if (string.IsNullOrEmpty(to)) throw new ArgumentNullException("Field 'to' can not be null or empty");
 
             To = to;
             Subject = subject;

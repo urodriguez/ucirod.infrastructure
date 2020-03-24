@@ -1,7 +1,8 @@
 ﻿using System.Collections.Generic;
-using Auditing.Domain;
 using Auditing.Infrastructure.Persistence;
-using Infrastructure.CrossCutting.LogService;
+using Infrastructure.CrossCutting.Authentication;
+using Logging.Application;
+using Logging.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -25,20 +26,31 @@ namespace Auditing
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            var envConnectionString = new Dictionary<string, string>
+            var env = Configuration.GetValue<string>("Environment");
+
+            var envAuditingConnectionString = new Dictionary<string, string>
             {
                 { "DEV", "Server=localhost;Database=UciRod.Infrastructure.Auditing;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
                 { "TEST", "Server=localhost;Database=UciRod.Infrastructure.Auditing-Test;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
                 { "STAGE", "Server=localhost;Database=UciRod.Infrastructure.Auditing-Stage;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
                 { "PROD", "Server=localhost;Database=UciRod.Infrastructure.Auditing;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" }
             };
+            var auditingConnectionString = envAuditingConnectionString[env];
+            services.AddDbContext<AuditingDbContext>(options => options.UseSqlServer(auditingConnectionString));
 
-            var env = Configuration.GetValue<string>("Environment");
+            var envLoggingConnectionString = new Dictionary<string, string>
+            {
+                { "DEV", "Server=localhost;Database=UciRod.Infrastructure.Logging;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
+                { "TEST", "Server=localhost;Database=UciRod.Infrastructure.Logging-Test;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
+                { "STAGE", "Server=localhost;Database=UciRod.Infrastructure.Logging-Stage;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
+                { "PROD", "Server=localhost;Database=UciRod.Infrastructure.Logging;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" }
+            };
+            var loggingConnectionString = envLoggingConnectionString[env];
+            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(loggingConnectionString), ServiceLifetime.Singleton);
 
-            var connectionString = envConnectionString[env];
-            services.AddDbContext<AuditingDbContext>(options => options.UseSqlServer(connectionString));
-
-            services.AddSingleton<ILogService>(s => new LogService("Infrastructure", "Auditing", env));
+            services.AddSingleton<IClientService, ClientService>();
+            services.AddSingleton<ICorrelationService, CorrelationService>();
+            services.AddSingleton<ILogService, LogService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

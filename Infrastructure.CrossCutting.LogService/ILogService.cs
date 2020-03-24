@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.CrossCutting.LogService
+﻿namespace Logging.Application
 {
     public interface ILogService
     {

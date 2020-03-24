@@ -1,4 +1,4 @@
-﻿using Authentication.Domain;
+﻿using Infrastructure.CrossCutting.Authentication;
 
 namespace Authentication.Dtos
 {

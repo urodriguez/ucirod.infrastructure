@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Authentication.Domain;
+using Infrastructure.CrossCutting.Authentication;
 
 namespace Authentication.Dtos
 {

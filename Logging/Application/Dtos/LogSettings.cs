@@ -1,13 +1,12 @@
 ﻿using System;
 
-namespace Infrastructure.CrossCutting.LogService
+namespace Logging.Application.Dtos
 {
-    public class Log
+    public class LogSettings
     {
         public string Application { get; set; }
         public string Project { get; set; }
+        public string Environment { get; set; }
         public Guid CorrelationId { get; set; }
-        public string Text { get; set; }
-        public LogType Type { get; set; }
     }
 }

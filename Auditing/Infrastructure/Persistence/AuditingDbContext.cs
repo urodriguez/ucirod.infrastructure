@@ -7,7 +7,7 @@ namespace Auditing.Infrastructure.Persistence
 {
     public class AuditingDbContext : DbContext
     {
-        public AuditingDbContext(DbContextOptions options) : base(options)
+        public AuditingDbContext(DbContextOptions<AuditingDbContext> options) : base(options)
         {
         }
 

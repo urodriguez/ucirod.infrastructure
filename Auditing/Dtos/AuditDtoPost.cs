@@ -1,9 +1,11 @@
 ﻿using Auditing.Domain;
+using Infrastructure.CrossCutting.Authentication;
 
 namespace Auditing.Dtos
 {
     public class AuditDtoPost
     {
+        public Account Account { get; set; }
         public string Application { get; set; }
         public string Environment { get; set; }
         public string User { get; set; }

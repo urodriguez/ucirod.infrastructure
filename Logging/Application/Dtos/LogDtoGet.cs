@@ -1,18 +1,18 @@
 ﻿using System;
 using Logging.Domain;
 
-namespace Logging.Dtos
+namespace Logging.Application.Dtos
 {
     public class LogDtoGet
     {
-        public LogDtoGet(Log ol)
+        public LogDtoGet(Log l)
         {
-            Application = ol.Application;
-            Project = ol.Project;
-            CorrelationId = ol.CorrelationId;
-            Text = ol.Text;
-            Type = ol.Type.ToString();
-            CreationDate = ol.CreationDate;
+            Application = l.Application;
+            Project = l.Project;
+            CorrelationId = l.CorrelationId;
+            Text = l.Text;
+            Type = l.Type.ToString();
+            CreationDate = l.CreationDate;
         }
 
         public string Application { get; set; }

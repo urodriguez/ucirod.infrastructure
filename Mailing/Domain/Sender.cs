@@ -8,9 +8,9 @@ namespace Mailing.Domain
 
         public Sender(string name, string email, string password)
         {
-            if (string.IsNullOrEmpty(name)) throw new Exception("Field 'Sender.Name' can not be null or empty");
-            if (string.IsNullOrEmpty(email)) throw new Exception("Field 'Sender.Email' can not be null or empty");
-            if (string.IsNullOrEmpty(password)) throw new Exception("Field 'Sender.Password' can not be null or empty");
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("Field 'Sender.Name' can not be null or empty");
+            if (string.IsNullOrEmpty(email)) throw new ArgumentNullException("Field 'Sender.Email' can not be null or empty");
+            if (string.IsNullOrEmpty(password)) throw new ArgumentNullException("Field 'Sender.Password' can not be null or empty");
 
             Name = name;
             Email = email;

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Infrastructure.CrossCutting.Authentication;
+using Logging.Application;
 using Logging.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -31,7 +33,11 @@ namespace Logging
                 { "PROD", "Server=localhost;Database=UciRod.Infrastructure.Logging;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" }
             };
             var connectionString = envConnectionString[Configuration.GetValue<string>("Environment")];
-            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(connectionString));
+            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Singleton);
+
+            services.AddSingleton<IClientService, ClientService>();
+            services.AddSingleton<ICorrelationService, CorrelationService>();
+            services.AddSingleton<ILogService, LogService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

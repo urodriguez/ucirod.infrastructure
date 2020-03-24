@@ -8,8 +8,8 @@ namespace Mailing.Domain
 
         public Host(string name, int port, bool useSsl)
         {
-            if (string.IsNullOrEmpty(name)) throw new Exception("Field 'Host.Name' can not be null or empty");
-            if (port <= 0) throw new Exception("Field 'Host.Port' can not be less or equal than zero");
+            if (string.IsNullOrEmpty(name)) throw new ArgumentNullException("Field 'Host.Name' can not be null or empty");
+            if (port <= 0) throw new ArgumentOutOfRangeException("Field 'Host.Port' can not be less or equal than zero");
 
             Name = name;
             Port = port;

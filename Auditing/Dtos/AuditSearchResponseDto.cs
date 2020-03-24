@@ -4,7 +4,7 @@ using Auditing.Domain;
 
 namespace Auditing.Dtos
 {
-    public class AuditDtoGet
+    public class AuditSearchResponseDto
     {
         public string User { get; set; }
         public IEnumerable<EntityChange> Changes { get; set; }

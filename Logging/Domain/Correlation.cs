@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Logging.Application
+namespace Logging.Domain
 {
     public class Correlation
     {

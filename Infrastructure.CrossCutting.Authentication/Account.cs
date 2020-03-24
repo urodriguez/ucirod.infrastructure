@@ -1,4 +1,4 @@
-﻿namespace Authentication.Domain
+﻿namespace Infrastructure.CrossCutting.Authentication
 {
     public class Account
     {

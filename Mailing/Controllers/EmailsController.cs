@@ -1,11 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using Infrastructure.CrossCutting.LogService;
+using Infrastructure.CrossCutting.Authentication;
+using Logging.Application;
+using Logging.Application.Dtos;
 using Mailing.Domain;
 using Mailing.Dtos;
 using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using MimeKit;
 
 namespace Mailing.Controllers
@@ -14,23 +17,38 @@ namespace Mailing.Controllers
     [ApiController]
     public class EmailsController : ControllerBase
     {
+        private readonly IClientService _clientService;
         private readonly ILogService _logService;
 
-        public EmailsController(ILogService logService)
+        public EmailsController(IClientService clientService, ILogService logService, ICorrelationService correlationService, IConfiguration config)
         {
-            _logService = logService;
-        }
+            _clientService = clientService;
 
-        // GET api/values
-        [HttpGet]
-        public ActionResult<IEnumerable<string>> Get()
-        {
-            return new string[] { "email_test1", "email_test2" };
+            _logService = logService;
+            _logService.Configure(new LogSettings
+            {
+                Application = "Infrastructure",
+                Project = "Mailing",
+                Environment = config.GetValue<string>("Environment"),
+                CorrelationId = correlationService.Create(null, false).Id
+            });
         }
 
         [HttpPost]
         public IActionResult Post([FromBody] EmailDto emailDto)
         {
+            if (!_clientService.CredentialsAreValid(emailDto.Account))
+            {
+                if (emailDto.Account == null)
+                {
+                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | BadRequest | account == null");
+                    return BadRequest("Credentials not provided");
+                }
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={emailDto.Account.Id}");
+                return Unauthorized();
+            }
+            _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={emailDto.Account.Id}");
+
             try
             {
                 Email email;
@@ -116,6 +134,14 @@ namespace Mailing.Controllers
                     return Ok();
                 }
             }
+            catch (ArgumentNullException ane)
+            {
+                return BadRequest(ane.Message);
+            }
+            catch (ArgumentOutOfRangeException aore)
+            {
+                return BadRequest(aore.Message);
+            }
             catch (Exception ex)
             {
                 _logService.LogErrorMessage(
@@ -123,7 +149,7 @@ namespace Mailing.Controllers
                     $"Email NOT sent | " +
                     $"STATUS=FAIL - ex.Message={ex.Message} - ex.FullStackTrace={ex}"
                 );
-                return BadRequest(ex.Message);
+                return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
     }
