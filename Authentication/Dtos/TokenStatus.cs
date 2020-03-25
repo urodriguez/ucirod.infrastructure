@@ -4,6 +4,6 @@
     {
         Valid,
         Invalid,
-        Expirated
+        Expired
     }
 }

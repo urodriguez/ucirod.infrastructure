@@ -73,7 +73,7 @@ namespace Authentication.Controllers
                 {
                     UciRodToken.Issuer,
                     securityTokenDescriptor.Expires,
-                    Token = tokenHandler.WriteToken(jwtSecurityToken) //security token as string
+                    SecurityToken = tokenHandler.WriteToken(jwtSecurityToken) //security token as string
                 });
             }
             catch (UnauthorizedAccessException uae)
@@ -116,7 +116,7 @@ namespace Authentication.Controllers
                     ValidateAudience = false
                 };
 
-                var identity = tokenHandler.ValidateToken(tokenValidateDto.Token, validationParameters, out var validatedToken);
+                var identity = tokenHandler.ValidateToken(tokenValidateDto.SecurityToken, validationParameters, out var validatedToken);
                 _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | account.Id={tokenValidateDto.Account.Id}");
 
                 var internalClaimTypes = new[] { "nbf", "exp", "iat", "iss" };
@@ -147,7 +147,7 @@ namespace Authentication.Controllers
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | account.Id={tokenValidateDto.Account.Id}");
                 return Ok(new
                 {
-                    TokenStatus = TokenStatus.Expirated,
+                    TokenStatus = TokenStatus.Expired
                 });
             }
             catch (Exception e)
@@ -155,7 +155,7 @@ namespace Authentication.Controllers
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | account.Id={tokenValidateDto.Account.Id} - fullStackTrace={e}");
                 return Ok(new
                 {
-                    TokenStatus = TokenStatus.Invalid,
+                    TokenStatus = TokenStatus.Invalid
                 });
             }
         }
