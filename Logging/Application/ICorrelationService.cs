@@ -1,10 +1,10 @@
-﻿using Infrastructure.CrossCutting.Authentication;
-using Logging.Application.Dtos;
+﻿using Logging.Application.Dtos;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Application
 {
     public interface ICorrelationService
     {
-        CorrelationDto Create(Account account, bool validateCredentials = true);
+        CorrelationDto Create(Credential credential, bool validateCredentials = true);
     }
 }

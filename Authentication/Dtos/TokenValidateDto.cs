@@ -1,10 +1,10 @@
-﻿using Infrastructure.CrossCutting.Authentication;
+﻿using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Authentication.Dtos
 {
     public class TokenValidateDto
     {
-        public Account Account { get; set; }
+        public Credential Credential { get; set; }
         public string SecurityToken { get; set; }
     }
 }

@@ -6,9 +6,9 @@ using Auditing.Dtos;
 using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Microsoft.Extensions.Configuration;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Auditing.Controllers
 {
@@ -17,13 +17,13 @@ namespace Auditing.Controllers
     {
         public SearchsController(
             AuditingDbContext auditingDbContext,
-            IClientService clientService,
+            ICredentialService credentialService,
             ILogService logService,
             ICorrelationService correlationService,
             IConfiguration config
         ) : base(
             auditingDbContext,
-            clientService,
+            credentialService,
             logService,
             correlationService,
             config
@@ -34,7 +34,7 @@ namespace Auditing.Controllers
         [HttpPost]
         public IActionResult Search([FromBody] AuditSearchRequestDto auditSearchRequestDto)
         {
-            return Execute(auditSearchRequestDto.Account, () =>
+            return Execute(auditSearchRequestDto.Credential, () =>
             {
                 var page = auditSearchRequestDto.Page.Value;
                 var pageSize = auditSearchRequestDto.PageSize.Value;

@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Infrastructure.CrossCutting.Authentication\Infrastructure.CrossCutting.Authentication.csproj" />
+    <ProjectReference Include="..\Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj" />
   </ItemGroup>
 
 </Project>

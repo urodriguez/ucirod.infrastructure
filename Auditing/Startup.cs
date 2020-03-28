@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Auditing.Infrastructure.Persistence;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Logging.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
@@ -9,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Auditing
 {
@@ -48,7 +48,7 @@ namespace Auditing
             var loggingConnectionString = envLoggingConnectionString[env];
             services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(loggingConnectionString), ServiceLifetime.Singleton);
 
-            services.AddSingleton<IClientService, ClientService>();
+            services.AddSingleton<ICredentialService, CredentialService>();
             services.AddSingleton<ICorrelationService, CorrelationService>();
             services.AddSingleton<ILogService, LogService>();
         }

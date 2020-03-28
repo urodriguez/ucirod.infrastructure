@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Logging.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Authentication
 {
@@ -35,7 +35,7 @@ namespace Authentication
             var connectionString = envConnectionString[Configuration.GetValue<string>("Environment")];
             services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Singleton);
 
-            services.AddSingleton<IClientService, ClientService>();
+            services.AddSingleton<ICredentialService, CredentialService>();
             services.AddSingleton<ICorrelationService, CorrelationService>();
             services.AddSingleton<ILogService, LogService>();
         }

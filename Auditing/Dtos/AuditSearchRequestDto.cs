@@ -1,5 +1,5 @@
 ﻿using System;
-using Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Auditing.Dtos
 {
@@ -13,7 +13,7 @@ namespace Auditing.Dtos
             SortOrder = "desc";
         }
 
-        public Account Account { get; set; }
+        public Credential Credential { get; set; }
         public int? Page { get; set; }
         public int? PageSize { get; set; }
         public string SortBy { get; set; }

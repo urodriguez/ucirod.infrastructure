@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Reflection;
-using Core.Application.Exceptions;
 using Logging.Application;
 using Logging.Application.Dtos;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Shared.Application.Exceptions;
 
 namespace Logging.Controllers
 {

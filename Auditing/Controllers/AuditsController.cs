@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Mvc;
 using JsonDiffPatchDotNet;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Microsoft.Extensions.Configuration;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Auditing.Controllers
 {
@@ -19,13 +19,13 @@ namespace Auditing.Controllers
     {
         public AuditsController(
             AuditingDbContext auditingDbContext, 
-            IClientService clientService, 
+            ICredentialService credentialService, 
             ILogService logService, 
             ICorrelationService correlationService, 
             IConfiguration config
         ) : base(
             auditingDbContext,
-            clientService,
+            credentialService,
             logService,
             correlationService,
             config
@@ -36,7 +36,7 @@ namespace Auditing.Controllers
         [HttpPost]
         public IActionResult Audit([FromBody] AuditDtoPost auditDto)
         {
-            return Execute(auditDto.Account, () =>
+            return Execute(auditDto.Credential, () =>
             {
                 var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.Entity, auditDto.EntityName, auditDto.Action);
 

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Core.WebApi;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Logging.Application.Dtos;
 using Mailing.Domain;
@@ -10,13 +8,15 @@ using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
+using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.WebApi.Controllers;
 
 namespace Mailing.Controllers
 {
     [Route("api/[controller]")]
     public class EmailsController : InfrastructureController
     {
-        public EmailsController(IClientService clientService, ILogService logService, ICorrelationService correlationService, IConfiguration config) : base(clientService, logService)
+        public EmailsController(ICredentialService credentialService, ILogService logService, ICorrelationService correlationService, IConfiguration config) : base(credentialService, logService)
         {
             _logService.Configure(new LogSettings
             {
@@ -30,7 +30,7 @@ namespace Mailing.Controllers
         [HttpPost]
         public IActionResult Post([FromBody] EmailDto emailDto)
         {
-            return Execute(emailDto.Account, () =>
+            return Execute(emailDto.Credential, () =>
             {
                 Email email;
 

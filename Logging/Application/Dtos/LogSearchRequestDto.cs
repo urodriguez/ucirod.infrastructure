@@ -1,6 +1,6 @@
 ﻿using System;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Domain;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Application.Dtos
 {
@@ -14,7 +14,7 @@ namespace Logging.Application.Dtos
             SortOrder = "desc";
         }
 
-        public Account Account { get; set; }
+        public Credential Credential { get; set; }
         public int? Page { get; set; }
         public int? PageSize { get; set; }
         public string SortBy { get; set; }

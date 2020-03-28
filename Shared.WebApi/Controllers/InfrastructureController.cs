@@ -1,35 +1,35 @@
 ﻿using System;
 using System.Reflection;
-using Core.Application.Exceptions;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Application.Exceptions;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
-namespace Core.WebApi
+namespace Shared.WebApi.Controllers
 {
     [ApiController]
     public class InfrastructureController : ControllerBase
     {
-        private readonly IClientService _clientService;
+        private readonly ICredentialService _credentialService;
         protected readonly ILogService _logService;
 
-        public InfrastructureController(IClientService clientService, ILogService logService)
+        public InfrastructureController(ICredentialService credentialService, ILogService logService)
         {
-            _clientService = clientService;
+            _credentialService = credentialService;
             _logService = logService;
         }
 
-        protected IActionResult Execute<TResult>(Account account, Func<TResult> controllerPipeline, MediaType mediaType = MediaType.ApplicationJson) where TResult : IActionResult
+        protected IActionResult Execute<TResult>(Credential credential, Func<TResult> controllerPipeline, MediaType mediaType = MediaType.ApplicationJson) where TResult : IActionResult
         {
             try
             {
-                if (!_clientService.CredentialsAreValid(account))
+                if (!_credentialService.AreValid(credential))
                 {
-                    if (account == null) throw new ArgumentNullException("Credentials not provided");
+                    if (credential == null) throw new ArgumentNullException("Credential not provided");
                     throw new AuthenticationFailException();
                 }
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={account.Id}");
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={credential.Id}");
 
                 var controllerPipelineResult = controllerPipeline.Invoke();
 

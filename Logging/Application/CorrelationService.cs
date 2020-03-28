@@ -1,31 +1,31 @@
 ﻿using System;
 using System.Reflection;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application.Dtos;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Application
 {
     public class CorrelationService : ICorrelationService
     {
-        private readonly IClientService _clientService;
+        private readonly ICredentialService _credentialService;
         private readonly ILogService _logService;
 
-        public CorrelationService(IClientService clientService, ILogService logService)
+        public CorrelationService(ICredentialService credentialService, ILogService logService)
         {
-            _clientService = clientService;
+            _credentialService = credentialService;
             _logService = logService;
         }
 
-        public CorrelationDto Create(Account account, bool validateCredentials = true)
+        public CorrelationDto Create(Credential credential, bool validateCredentials = true)
         {
             if (validateCredentials)
             {
-                if (!_clientService.CredentialsAreValid(account))
+                if (!_credentialService.AreValid(credential))
                 {
-                    if (account == null) throw new ArgumentNullException("Credentials not provided");
+                    if (credential == null) throw new ArgumentNullException("Credential not provided");
                     throw new UnauthorizedAccessException();
                 }
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={account.Id}");
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={credential.Id}");
             }
 
             return new CorrelationDto();

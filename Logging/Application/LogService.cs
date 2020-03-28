@@ -2,24 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application.Dtos;
 using Logging.Domain;
 using Logging.Infrastructure.Persistence;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Application
 {
     public class LogService : ILogService
     {
         private readonly LoggingDbContext _loggingDbContext;
-        private readonly IClientService _clientService;
+        private readonly ICredentialService _credentialService;
 
         private LogSettings _logSettings;
 
-        public LogService(LoggingDbContext loggingDbContext, IClientService clientService)
+        public LogService(LoggingDbContext loggingDbContext, ICredentialService credentialService)
         {
             _loggingDbContext = loggingDbContext;
-            _clientService = clientService;
+            _credentialService = credentialService;
         }
 
         public void Configure(LogSettings logSettings)
@@ -31,12 +31,12 @@ namespace Logging.Application
         {
             if (validateCredentials)
             {
-                if (!_clientService.CredentialsAreValid(logDto.Account)) 
+                if (!_credentialService.AreValid(logDto.Credential)) 
                 {
-                    if (logDto.Account == null) throw new ArgumentNullException("Credentials not provided");
+                    if (logDto.Credential == null) throw new ArgumentNullException("Credential not provided");
                     throw new UnauthorizedAccessException();
                 }
-                LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={logDto.Account.Id}");
+                LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logDto.Credential.Id}");
             }
 
             var log = new Log(logDto.Application, logDto.Project, logDto.CorrelationId, logDto.Text, logDto.Type, logDto.Environment);
@@ -47,12 +47,12 @@ namespace Logging.Application
 
         public IEnumerable<LogDtoGet> Search(LogSearchRequestDto logSearchRequestDto)
         {
-            if (!_clientService.CredentialsAreValid(logSearchRequestDto.Account))
+            if (!_credentialService.AreValid(logSearchRequestDto.Credential))
             {
-                if (logSearchRequestDto.Account == null) throw new ArgumentNullException("Credentials not provided");
+                if (logSearchRequestDto.Credential == null) throw new ArgumentNullException("Credential not provided");
                 throw new UnauthorizedAccessException();
             }
-            LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={logSearchRequestDto.Account.Id}");
+            LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logSearchRequestDto.Credential.Id}");
 
             var page = logSearchRequestDto.Page.Value;
             var pageSize = logSearchRequestDto.PageSize.Value;

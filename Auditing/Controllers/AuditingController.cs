@@ -1,9 +1,9 @@
 ﻿using Auditing.Infrastructure.Persistence;
-using Core.WebApi;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Logging.Application.Dtos;
 using Microsoft.Extensions.Configuration;
+using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.WebApi.Controllers;
 
 namespace Auditing.Controllers
 {
@@ -13,12 +13,12 @@ namespace Auditing.Controllers
 
         public AuditingController(
             AuditingDbContext auditingDbContext, 
-            IClientService clientService, 
+            ICredentialService credentialService, 
             ILogService logService,
             ICorrelationService correlationService,
             IConfiguration config
         ) : base(
-            clientService,
+            credentialService,
             logService
         )
         {

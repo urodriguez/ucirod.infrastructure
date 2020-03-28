@@ -13,11 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RESTfulApi", "RESTfulApi\RE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mailing", "Mailing\Mailing.csproj", "{24263FD6-82A2-4C41-8FFD-4FFA025BD6BE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.CrossCutting.Authentication", "Infrastructure.CrossCutting.Authentication\Infrastructure.CrossCutting.Authentication.csproj", "{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Application", "Shared.Application\Shared.Application.csproj", "{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.WebApi", "Core.WebApi\Core.WebApi.csproj", "{314E2F81-8C4A-4E86-8138-F5D5076D72BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.WebApi", "Shared.WebApi\Shared.WebApi.csproj", "{24745F3E-0F4A-49EB-A969-8337330C3EC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Application", "Core.Application\Core.Application.csproj", "{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Infrastructure.CrossCutting", "Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj", "{6401E0BD-3B80-4B01-B6E9-666D38601731}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,18 +45,18 @@ Global
 		{24263FD6-82A2-4C41-8FFD-4FFA025BD6BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{24263FD6-82A2-4C41-8FFD-4FFA025BD6BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{24263FD6-82A2-4C41-8FFD-4FFA025BD6BE}.Release|Any CPU.Build.0 = Release|Any CPU
-		{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{314E2F81-8C4A-4E86-8138-F5D5076D72BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{314E2F81-8C4A-4E86-8138-F5D5076D72BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{314E2F81-8C4A-4E86-8138-F5D5076D72BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{314E2F81-8C4A-4E86-8138-F5D5076D72BA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}.Release|Any CPU.Build.0 = Release|Any CPU
+		{24745F3E-0F4A-49EB-A969-8337330C3EC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{24745F3E-0F4A-49EB-A969-8337330C3EC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{24745F3E-0F4A-49EB-A969-8337330C3EC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{24745F3E-0F4A-49EB-A969-8337330C3EC7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

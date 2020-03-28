@@ -15,9 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Core.WebApi\Core.WebApi.csproj" />
-    <ProjectReference Include="..\Infrastructure.CrossCutting.Authentication\Infrastructure.CrossCutting.Authentication.csproj" />
     <ProjectReference Include="..\Logging\Logging.csproj" />
+    <ProjectReference Include="..\Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj" />
+    <ProjectReference Include="..\Shared.WebApi\Shared.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

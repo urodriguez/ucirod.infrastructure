@@ -6,20 +6,20 @@ using System.Security.Claims;
 using System.Text;
 using Authentication.Domain;
 using Authentication.Dtos;
-using Core.WebApi;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Logging.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.WebApi.Controllers;
 
 namespace Authentication.Controllers
 {
     [Route("api/[controller]")]
     public class TokensController : InfrastructureController
     {
-        public TokensController(IClientService clientService, ILogService logService, ICorrelationService correlationService, IConfiguration config) : base(clientService, logService)
+        public TokensController(ICredentialService credentialService, ILogService logService, ICorrelationService correlationService, IConfiguration config) : base(credentialService, logService)
         {
             _logService.Configure(new LogSettings
             {
@@ -33,7 +33,7 @@ namespace Authentication.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] TokenCreateDto tokenCreateDto)
         {
-            return Execute(tokenCreateDto.Account, () =>
+            return Execute(tokenCreateDto.Credential, () =>
             {
                 // create a claimsIdentity
                 var claimsIdentity = new ClaimsIdentity(tokenCreateDto.Claims.Select(c => new Claim(c.Type, c.Value)));
@@ -48,12 +48,12 @@ namespace Authentication.Controllers
                     Subject = claimsIdentity,
                     NotBefore = DateTime.UtcNow,
                     Expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(tokenCreateDto.Expires ?? UciRodToken.Expires)),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.Default.GetBytes(tokenCreateDto.Account.SecretKey)), SecurityAlgorithms.HmacSha256Signature)
+                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.Default.GetBytes(tokenCreateDto.Credential.SecretKey)), SecurityAlgorithms.HmacSha256Signature)
                 };
 
                 // create JWT security token based on descriptor
                 var jwtSecurityToken = tokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token created successfully | account.Id={tokenCreateDto.Account.Id}");
+                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token created successfully | credential.Id={tokenCreateDto.Credential.Id}");
 
                 return Ok(new
                 {
@@ -68,7 +68,7 @@ namespace Authentication.Controllers
         [HttpPost]
         public IActionResult Validate([FromBody] TokenValidateDto tokenValidateDto)
         {
-            return Execute(tokenValidateDto.Account, () =>
+            return Execute(tokenValidateDto.Credential, () =>
             {
                 try
                 {
@@ -80,17 +80,17 @@ namespace Authentication.Controllers
                         ValidateIssuerSigningKey = true,
                         ValidateLifetime = true,
                         LifetimeValidator = LifetimeValidator,
-                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenValidateDto.Account.SecretKey)),
+                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenValidateDto.Credential.SecretKey)),
                         ValidateAudience = false
                     };
 
                     var identity = tokenHandler.ValidateToken(tokenValidateDto.SecurityToken, validationParameters, out var validatedToken);
-                    _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | account.Id={tokenValidateDto.Account.Id}");
+                    _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | credential.Id={tokenValidateDto.Credential.Id}");
 
                     var internalClaimTypes = new[] { "nbf", "exp", "iat", "iss" };
 
                     var claims = identity.Claims.Where(c => !internalClaimTypes.Contains(c.Type));
-                    _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | account.Id={tokenValidateDto.Account.Id} - claims.Count={claims.Count()}");
+                    _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | credential.Id={tokenValidateDto.Credential.Id} - claims.Count={claims.Count()}");
 
                     return Ok(new
                     {
@@ -104,7 +104,7 @@ namespace Authentication.Controllers
                 }
                 catch (SecurityTokenInvalidLifetimeException stile)
                 {
-                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | account.Id={tokenValidateDto.Account.Id}");
+                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | credential.Id={tokenValidateDto.Credential.Id}");
                     return Ok(new
                     {
                         TokenStatus = TokenStatus.Expired
@@ -112,7 +112,7 @@ namespace Authentication.Controllers
                 }
                 catch (Exception e)//overrides generic Exception catching to catch exceptions from: tokenHandler.ValidateToken
                 {
-                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | account.Id={tokenValidateDto.Account.Id} - fullStackTrace={e}");
+                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | credential.Id={tokenValidateDto.Credential.Id} - fullStackTrace={e}");
                     return Ok(new
                     {
                         TokenStatus = TokenStatus.Invalid

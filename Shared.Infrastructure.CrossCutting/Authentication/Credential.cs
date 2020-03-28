@@ -1,6 +1,6 @@
-﻿namespace Infrastructure.CrossCutting.Authentication
+﻿namespace Shared.Infrastructure.CrossCutting.Authentication
 {
-    public class Account
+    public class Credential
     {
         public string Id { get; set; }
         public string SecretKey { get; set; }

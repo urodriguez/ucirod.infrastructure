@@ -1,5 +1,5 @@
-﻿using Infrastructure.CrossCutting.Authentication;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace RESTfulApi.Controllers
 {
@@ -14,7 +14,7 @@ namespace RESTfulApi.Controllers
             
             //store userRegisterDto
 
-            return Ok(new Account
+            return Ok(new Credential
             {
                 Id = "InventApp",
                 SecretKey = "1nfr4structur3_1nv3nt4pp"

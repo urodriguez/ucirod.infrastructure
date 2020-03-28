@@ -1,7 +1,7 @@
-﻿using Infrastructure.CrossCutting.Authentication;
-using Logging.Application;
+﻿using Logging.Application;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Controllers
 {
@@ -17,11 +17,11 @@ namespace Logging.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] Account account)
+        public IActionResult Post([FromBody] Credential credential)
         {
             return Execute(() =>
             {
-                var correlationDto = _correlationService.Create(account);
+                var correlationDto = _correlationService.Create(credential);
                 return Ok(correlationDto);
             });
         }

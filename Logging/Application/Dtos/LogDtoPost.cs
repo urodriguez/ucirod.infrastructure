@@ -1,12 +1,12 @@
 ﻿using System;
-using Infrastructure.CrossCutting.Authentication;
 using Logging.Domain;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Application.Dtos
 {
     public class LogDtoPost
     {
-        public Account Account { get; set; }
+        public Credential Credential { get; set; }
         public string Application { get; set; }
         public string Project { get; set; }
         public Guid CorrelationId { get; set; }

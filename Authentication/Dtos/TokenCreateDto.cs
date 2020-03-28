@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Authentication.Domain;
-using Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Authentication.Dtos
 {
@@ -11,7 +11,7 @@ namespace Authentication.Dtos
             Claims = new List<UciRodClaim>();//initialization when Claims in not provided (Claims == null)
         }
 
-        public Account Account { get; set; }
+        public Credential Credential { get; set; }
         public int? Expires { get; set; }
         public IList<UciRodClaim> Claims { get; set; }
     }
