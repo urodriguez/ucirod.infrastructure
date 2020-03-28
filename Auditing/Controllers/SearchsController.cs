@@ -7,41 +7,34 @@ using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Infrastructure.CrossCutting.Authentication;
-using System.Reflection;
 using Logging.Application;
-using Logging.Application.Dtos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 
 namespace Auditing.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class SearchsController : ControllerBase
+    public class SearchsController : AuditingController
     {
-        private readonly AuditingDbContext _auditingDbContext;
-        private readonly ILogService _logService;
-        private readonly IClientService _clientService;
-
-        public SearchsController(AuditingDbContext auditingDbContext, IClientService clientService, ILogService logService, ICorrelationService correlationService, IConfiguration config)
+        public SearchsController(
+            AuditingDbContext auditingDbContext,
+            IClientService clientService,
+            ILogService logService,
+            ICorrelationService correlationService,
+            IConfiguration config
+        ) : base(
+            auditingDbContext,
+            clientService,
+            logService,
+            correlationService,
+            config
+        )
         {
-            _auditingDbContext = auditingDbContext;
-            _clientService = clientService;
-
-            _logService = logService;
-            _logService.Configure(new LogSettings
-            {
-                Application = "Infrastructure",
-                Project = "Auditing",
-                Environment = config.GetValue<string>("Environment"),
-                CorrelationId = correlationService.Create(null, false).Id
-            });
         }
 
         [HttpPost]
         public IActionResult Search([FromBody] AuditSearchRequestDto auditSearchRequestDto)
         {
-            try
+            return Execute(auditSearchRequestDto.Account, () =>
             {
                 var page = auditSearchRequestDto.Page.Value;
                 var pageSize = auditSearchRequestDto.PageSize.Value;
@@ -52,19 +45,7 @@ namespace Auditing.Controllers
 
                 _logService.LogInfoMessage($"AuditController.Get | INPUT | page={page} - pageSize={pageSize} - sortBy={sortBy} - sortOrder={sortOrder} - sinceDate={sinceDate} - toDate={toDate}");
 
-                if (!_clientService.CredentialsAreValid(auditSearchRequestDto.Account))
-                {
-                    if (auditSearchRequestDto.Account == null)
-                    {
-                        _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | BadRequest | account == null");
-                        throw new ArgumentNullException("Credentials not provided");
-                    }
-                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={auditSearchRequestDto.Account.Id}");
-                    throw new UnauthorizedAccessException();
-                }
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={auditSearchRequestDto.Account.Id}");
-
-                if (sortOrder != "asc" && sortOrder != "desc") return BadRequest($"Invalid sortOrder = {sortBy} parameter. Only 'asc' and 'desc' are allowed");
+                if (sortOrder != "asc" && sortOrder != "desc") throw new ArgumentOutOfRangeException($"Invalid sortOrder = {sortBy} parameter. Only 'asc' and 'desc' are allowed");
 
                 IQueryable<Audit> searchedAudits;
                 if (sinceDate == null && toDate == null)
@@ -115,24 +96,7 @@ namespace Auditing.Controllers
                     Action = pa.Action,
                     CreationDate = pa.CreationDate
                 }).ToList());
-            }
-            catch (UnauthorizedAccessException uae)
-            {
-                return Unauthorized();
-            }
-            catch (ArgumentNullException ane)
-            {
-                return BadRequest(ane.Message);
-            }
-            catch (ArgumentOutOfRangeException aore)
-            {
-                return BadRequest(aore.Message);
-            }
-            catch (Exception e)
-            {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | e.FullStackTrace={e}");
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            });
         }
     }
 }

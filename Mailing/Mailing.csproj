@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Core.WebApi\Core.WebApi.csproj" />
     <ProjectReference Include="..\Infrastructure.CrossCutting.Authentication\Infrastructure.CrossCutting.Authentication.csproj" />
     <ProjectReference Include="..\Logging\Logging.csproj" />
   </ItemGroup>

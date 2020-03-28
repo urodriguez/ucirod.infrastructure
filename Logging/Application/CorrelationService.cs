@@ -22,12 +22,7 @@ namespace Logging.Application
             {
                 if (!_clientService.CredentialsAreValid(account))
                 {
-                    if (account == null)
-                    {
-                        _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | BadRequest | account == null");
-                        throw new ArgumentNullException("Credentials not provided");
-                    }
-                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={account.Id}");
+                    if (account == null) throw new ArgumentNullException("Credentials not provided");
                     throw new UnauthorizedAccessException();
                 }
                 _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={account.Id}");

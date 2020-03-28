@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28010.2026
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auditing", "Auditing\Auditing.csproj", "{4C423A48-8A5D-4B51-A1B5-2F032F53501E}"
 EndProject
@@ -14,6 +14,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mailing", "Mailing\Mailing.csproj", "{24263FD6-82A2-4C41-8FFD-4FFA025BD6BE}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Infrastructure.CrossCutting.Authentication", "Infrastructure.CrossCutting.Authentication\Infrastructure.CrossCutting.Authentication.csproj", "{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.WebApi", "Core.WebApi\Core.WebApi.csproj", "{314E2F81-8C4A-4E86-8138-F5D5076D72BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Core.Application", "Core.Application\Core.Application.csproj", "{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +49,14 @@ Global
 		{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62FFDAE5-2F10-41BD-B7AE-A768758B15A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{314E2F81-8C4A-4E86-8138-F5D5076D72BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{314E2F81-8C4A-4E86-8138-F5D5076D72BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{314E2F81-8C4A-4E86-8138-F5D5076D72BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{314E2F81-8C4A-4E86-8138-F5D5076D72BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EA3972C6-FDAD-4C80-BDFE-6640E35A5B31}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

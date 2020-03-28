@@ -33,12 +33,7 @@ namespace Logging.Application
             {
                 if (!_clientService.CredentialsAreValid(logDto.Account)) 
                 {
-                    if (logDto.Account == null)
-                    {
-                        LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | BadRequest | account == null");
-                        throw new ArgumentNullException("Credentials not provided");
-                    }
-                    LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={logDto.Account.Id}");
+                    if (logDto.Account == null) throw new ArgumentNullException("Credentials not provided");
                     throw new UnauthorizedAccessException();
                 }
                 LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={logDto.Account.Id}");
@@ -54,12 +49,7 @@ namespace Logging.Application
         {
             if (!_clientService.CredentialsAreValid(logSearchRequestDto.Account))
             {
-                if (logSearchRequestDto.Account == null)
-                {
-                    LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | BadRequest | account == null");
-                    throw new ArgumentNullException("Credentials not provided");
-                }
-                LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={logSearchRequestDto.Account.Id}");
+                if (logSearchRequestDto.Account == null) throw new ArgumentNullException("Credentials not provided");
                 throw new UnauthorizedAccessException();
             }
             LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={logSearchRequestDto.Account.Id}");

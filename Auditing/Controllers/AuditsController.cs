@@ -9,53 +9,35 @@ using JsonDiffPatchDotNet;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Infrastructure.CrossCutting.Authentication;
-using System.Reflection;
 using Logging.Application;
-using Logging.Application.Dtos;
 using Microsoft.Extensions.Configuration;
 
 namespace Auditing.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class AuditsController : ControllerBase
+    public class AuditsController : AuditingController
     {
-        private readonly AuditingDbContext _auditingDbContext;
-        private readonly IClientService _clientService;
-        private readonly ILogService _logService;
-
-        public AuditsController(AuditingDbContext auditingDbContext, IClientService clientService, ILogService logService, ICorrelationService correlationService, IConfiguration config)
+        public AuditsController(
+            AuditingDbContext auditingDbContext, 
+            IClientService clientService, 
+            ILogService logService, 
+            ICorrelationService correlationService, 
+            IConfiguration config
+        ) : base(
+            auditingDbContext,
+            clientService,
+            logService,
+            correlationService,
+            config
+        )
         {
-            _auditingDbContext = auditingDbContext;
-            _clientService = clientService;
-
-            _logService = logService;
-            _logService.Configure(new LogSettings
-            {
-                Application = "Infrastructure",
-                Project = "Auditing",
-                Environment = config.GetValue<string>("Environment"),
-                CorrelationId = correlationService.Create(null, false).Id
-            });
         }
 
         [HttpPost]
         public IActionResult Audit([FromBody] AuditDtoPost auditDto)
         {
-            try
+            return Execute(auditDto.Account, () =>
             {
-                if (!_clientService.CredentialsAreValid(auditDto.Account))
-                {
-                    if (auditDto.Account == null)
-                    {
-                        _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | BadRequest | account == null");
-                        return BadRequest("Credentials not provided");
-                    }
-                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Unauthorized | account.Id={auditDto.Account.Id}");
-                    return Unauthorized();
-                }
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={auditDto.Account.Id}");
-
                 var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.Entity, auditDto.EntityName, auditDto.Action);
 
                 JObject entityObject = ExtractEntityParsed(audit);
@@ -92,12 +74,7 @@ namespace Auditing.Controllers
                 _logService.LogInfoMessage($"AuditController.Audit | Audit registry saved | audit.Id={audit.Id} - audit.EntityId={audit.EntityId}");
 
                 return Ok();
-            }
-            catch (Exception e)
-            {
-                _logService.LogInfoMessage($"AuditController.Audit | An exception occurred trying to audit entity | audit={JsonConvert.SerializeObject(auditDto, Formatting.Indented)} - exception={e}");
-                return BadRequest(e.Message);
-            }
+            });
         }
 
         private static JObject ExtractEntityParsed(Audit audit)

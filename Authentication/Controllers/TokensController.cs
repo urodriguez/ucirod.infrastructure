@@ -6,10 +6,10 @@ using System.Security.Claims;
 using System.Text;
 using Authentication.Domain;
 using Authentication.Dtos;
+using Core.WebApi;
 using Infrastructure.CrossCutting.Authentication;
 using Logging.Application;
 using Logging.Application.Dtos;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -17,17 +17,10 @@ using Microsoft.IdentityModel.Tokens;
 namespace Authentication.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
-    public class TokensController : ControllerBase
+    public class TokensController : InfrastructureController
     {
-        private readonly IClientService _clientService;
-        private readonly ILogService _logService;
-
-        public TokensController(IClientService clientService, ILogService logService, ICorrelationService correlationService, IConfiguration config)
+        public TokensController(IClientService clientService, ILogService logService, ICorrelationService correlationService, IConfiguration config) : base(clientService, logService)
         {
-            _clientService = clientService;
-
-            _logService = logService;
             _logService.Configure(new LogSettings
             {
                 Application = "Infrastructure",
@@ -40,15 +33,8 @@ namespace Authentication.Controllers
         [HttpPost]
         public IActionResult Create([FromBody] TokenCreateDto tokenCreateDto)
         {
-            try
+            return Execute(tokenCreateDto.Account, () =>
             {
-                if (!_clientService.CredentialsAreValid(tokenCreateDto.Account))
-                {
-                    if (tokenCreateDto.Account == null) throw new ArgumentNullException("Credentials not provided");
-                    throw new UnauthorizedAccessException();
-                }
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={tokenCreateDto.Account.Id}");
-
                 // create a claimsIdentity
                 var claimsIdentity = new ClaimsIdentity(tokenCreateDto.Claims.Select(c => new Claim(c.Type, c.Value)));
 
@@ -75,89 +61,64 @@ namespace Authentication.Controllers
                     securityTokenDescriptor.Expires,
                     SecurityToken = tokenHandler.WriteToken(jwtSecurityToken) //security token as string
                 });
-            }
-            catch (UnauthorizedAccessException uae)
-            {
-                return Unauthorized();
-            }
-            catch (ArgumentNullException ane)
-            {
-                return BadRequest(ane.Message);
-            }
-            catch (Exception e)
-            {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | e.FullStackTrace={e}");
-                return StatusCode(StatusCodes.Status500InternalServerError);
-            }
+            });
         }
 
         [Route("validate")]
         [HttpPost]
         public IActionResult Validate([FromBody] TokenValidateDto tokenValidateDto)
         {
-            try
+            return Execute(tokenValidateDto.Account, () =>
             {
-                if (!_clientService.CredentialsAreValid(tokenValidateDto.Account))
+                try
                 {
-                    if (tokenValidateDto.Account == null) throw new ArgumentNullException("Credentials not provided");
-                    throw new UnauthorizedAccessException();
-                }
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | account.Id={tokenValidateDto.Account.Id}");
+                    var tokenHandler = new JwtSecurityTokenHandler();
 
-                var tokenHandler = new JwtSecurityTokenHandler();
-
-                var validationParameters = new TokenValidationParameters
-                {
-                    ValidIssuer = UciRodToken.Issuer,
-                    ValidateIssuerSigningKey = true,
-                    ValidateLifetime = true,
-                    LifetimeValidator = LifetimeValidator,
-                    IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenValidateDto.Account.SecretKey)),
-                    ValidateAudience = false
-                };
-
-                var identity = tokenHandler.ValidateToken(tokenValidateDto.SecurityToken, validationParameters, out var validatedToken);
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | account.Id={tokenValidateDto.Account.Id}");
-
-                var internalClaimTypes = new[] { "nbf", "exp", "iat", "iss" };
-
-                var claims = identity.Claims.Where(c => !internalClaimTypes.Contains(c.Type));
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | account.Id={tokenValidateDto.Account.Id} - claims.Count={claims.Count()}");
-
-                return Ok(new
-                {
-                    TokenStatus = TokenStatus.Valid,
-                    Claims = claims.Select(c => new
+                    var validationParameters = new TokenValidationParameters
                     {
-                        c.Type,
-                        c.Value
-                    })
-                });
-            }
-            catch (UnauthorizedAccessException uae)
-            {
-                return Unauthorized();
-            }
-            catch (ArgumentNullException ane)
-            {
-                return BadRequest(ane.Message);
-            }
-            catch (SecurityTokenInvalidLifetimeException stile)
-            {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | account.Id={tokenValidateDto.Account.Id}");
-                return Ok(new
+                        ValidIssuer = UciRodToken.Issuer,
+                        ValidateIssuerSigningKey = true,
+                        ValidateLifetime = true,
+                        LifetimeValidator = LifetimeValidator,
+                        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.Default.GetBytes(tokenValidateDto.Account.SecretKey)),
+                        ValidateAudience = false
+                    };
+
+                    var identity = tokenHandler.ValidateToken(tokenValidateDto.SecurityToken, validationParameters, out var validatedToken);
+                    _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | account.Id={tokenValidateDto.Account.Id}");
+
+                    var internalClaimTypes = new[] { "nbf", "exp", "iat", "iss" };
+
+                    var claims = identity.Claims.Where(c => !internalClaimTypes.Contains(c.Type));
+                    _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | account.Id={tokenValidateDto.Account.Id} - claims.Count={claims.Count()}");
+
+                    return Ok(new
+                    {
+                        TokenStatus = TokenStatus.Valid,
+                        Claims = claims.Select(c => new
+                        {
+                            c.Type,
+                            c.Value
+                        })
+                    });
+                }
+                catch (SecurityTokenInvalidLifetimeException stile)
                 {
-                    TokenStatus = TokenStatus.Expired
-                });
-            }
-            catch (Exception e)
-            {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | account.Id={tokenValidateDto.Account.Id} - fullStackTrace={e}");
-                return Ok(new
+                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | account.Id={tokenValidateDto.Account.Id}");
+                    return Ok(new
+                    {
+                        TokenStatus = TokenStatus.Expired
+                    });
+                }
+                catch (Exception e)//overrides generic Exception catching to catch exceptions from: tokenHandler.ValidateToken
                 {
-                    TokenStatus = TokenStatus.Invalid
-                });
-            }
+                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | account.Id={tokenValidateDto.Account.Id} - fullStackTrace={e}");
+                    return Ok(new
+                    {
+                        TokenStatus = TokenStatus.Invalid
+                    });
+                }
+            });
         }
 
         private bool LifetimeValidator(DateTime? notBefore, DateTime? expires, SecurityToken securityToken, TokenValidationParameters validationParameters)
