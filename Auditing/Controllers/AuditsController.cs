@@ -8,9 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 using JsonDiffPatchDotNet;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Logging.Application;
-using Microsoft.Extensions.Configuration;
 using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
 
 namespace Auditing.Controllers
 {
@@ -20,15 +19,11 @@ namespace Auditing.Controllers
         public AuditsController(
             AuditingDbContext auditingDbContext, 
             ICredentialService credentialService, 
-            ILogService logService, 
-            ICorrelationService correlationService, 
-            IConfiguration config
+            ILogService logService
         ) : base(
             auditingDbContext,
             credentialService,
-            logService,
-            correlationService,
-            config
+            logService
         )
         {
         }

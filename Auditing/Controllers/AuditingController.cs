@@ -1,8 +1,6 @@
 ﻿using Auditing.Infrastructure.Persistence;
-using Logging.Application;
-using Logging.Application.Dtos;
-using Microsoft.Extensions.Configuration;
 using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
 using Shared.WebApi.Controllers;
 
 namespace Auditing.Controllers
@@ -14,22 +12,18 @@ namespace Auditing.Controllers
         public AuditingController(
             AuditingDbContext auditingDbContext, 
             ICredentialService credentialService, 
-            ILogService logService,
-            ICorrelationService correlationService,
-            IConfiguration config
+            ILogService logService
         ) : base(
             credentialService,
             logService
         )
         {
             _auditingDbContext = auditingDbContext;
-            _logService.Configure(new LogSettings
-            {
-                Application = "Infrastructure",
-                Project = "Auditing",
-                Environment = config.GetValue<string>("Environment"),
-                CorrelationId = correlationService.Create(null, false).Id
-            });
+        }
+
+        protected override void ConfigureLogging()
+        {
+            _logService.UseProject("Auditing");
         }
     }
 }

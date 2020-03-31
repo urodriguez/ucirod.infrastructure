@@ -16,17 +16,14 @@ namespace Logging.Application
             _logService = logService;
         }
 
-        public CorrelationDto Create(Credential credential, bool validateCredentials = true)
+        public CorrelationDto Create(Credential credential)
         {
-            if (validateCredentials)
+            if (!_credentialService.AreValid(credential))
             {
-                if (!_credentialService.AreValid(credential))
-                {
-                    if (credential == null) throw new ArgumentNullException("Credential not provided");
-                    throw new UnauthorizedAccessException();
-                }
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={credential.Id}");
+                if (credential == null) throw new ArgumentNullException("Credential not provided");
+                throw new UnauthorizedAccessException();
             }
+            _logService.InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={credential.Id}");
 
             return new CorrelationDto();
         }

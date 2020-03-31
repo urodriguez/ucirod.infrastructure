@@ -1,14 +1,13 @@
 ﻿using Logging.Application;
 using Logging.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 
 namespace Logging.Controllers
 {
     [Route("api/[controller]")]
     public class SearchsController : LoggingController
     {
-        public SearchsController(ILogService logService, ICorrelationService correlationService, IConfiguration config) : base(logService, correlationService, config)
+        public SearchsController(ILogService logService) : base(logService)
         {
         }
 

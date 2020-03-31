@@ -1,23 +1,25 @@
 ﻿using System;
 using System.Reflection;
-using Logging.Application;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Shared.Application.Exceptions;
 using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
 
 namespace Shared.WebApi.Controllers
 {
     [ApiController]
-    public class InfrastructureController : ControllerBase
+    public abstract class InfrastructureController : ControllerBase
     {
         private readonly ICredentialService _credentialService;
         protected readonly ILogService _logService;
 
-        public InfrastructureController(ICredentialService credentialService, ILogService logService)
+        protected InfrastructureController(ICredentialService credentialService, ILogService logService)
         {
             _credentialService = credentialService;
             _logService = logService;
+
+            ConfigureLogging();
         }
 
         protected IActionResult Execute<TResult>(Credential credential, Func<TResult> controllerPipeline, MediaType mediaType = MediaType.ApplicationJson) where TResult : IActionResult
@@ -73,5 +75,7 @@ namespace Shared.WebApi.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError);
             }
         }
+
+        protected abstract void ConfigureLogging();
     }
 }

@@ -1,6 +1,5 @@
 ﻿using Logging.Application;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Controllers
@@ -11,7 +10,7 @@ namespace Logging.Controllers
     {
         private readonly ICorrelationService _correlationService;
 
-        public CorrelationsController(ICorrelationService correlationService, ILogService logService, IConfiguration config) : base(logService, correlationService, config)
+        public CorrelationsController(ICorrelationService correlationService, ILogService logService) : base(logService)
         {
             _correlationService = correlationService;
         }

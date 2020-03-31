@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Logging.Application
+namespace Shared.Infrastructure.CrossCutting.Logging
 {
     public class Correlation
     {

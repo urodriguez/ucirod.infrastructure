@@ -6,7 +6,8 @@
         {
             if (credential == null) return false;
 
-            return credential.Id == "InventApp" && credential.SecretKey.Equals("1nfr4structur3_1nv3nt4pp");
+            return credential.Id == "InventApp" && credential.SecretKey.Equals("1nfr4structur3_1nv3nt4pp") ||
+                   credential.Id == "Insfrastructure" && credential.SecretKey.Equals("1nfr4structur3_1nfr4structur3");
         }
     }
 }

@@ -5,12 +5,11 @@ namespace Logging.Application
 {
     public interface ILogService
     {
-        void Configure(LogSettings logSettings);
-        void Log(LogDtoPost logDto, bool validateCredentials = true);
+        void Log(LogDtoPost logDto);
         IEnumerable<LogDtoGet> Search(LogSearchRequestDto logSearchRequestDto);
 
-        void LogTraceMessage(string messageToLog);
-        void LogInfoMessage(string messageToLog);
-        void LogErrorMessage(string messageToLog);
+        void InternalLogTraceMessage(string messageToLog);
+        void InternalLogInfoMessage(string messageToLog);
+        void InternalLogErrorMessage(string messageToLog);
     }
 }

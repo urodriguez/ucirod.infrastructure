@@ -5,7 +5,9 @@ using System.Reflection;
 using Logging.Application.Dtos;
 using Logging.Domain;
 using Logging.Infrastructure.Persistence;
+using Shared.Infrastructure.CrossCutting.AppSettings;
 using Shared.Infrastructure.CrossCutting.Authentication;
+using LogType = Logging.Domain.LogType;
 
 namespace Logging.Application
 {
@@ -13,31 +15,27 @@ namespace Logging.Application
     {
         private readonly LoggingDbContext _loggingDbContext;
         private readonly ICredentialService _credentialService;
+        private readonly IAppSettingsService _appSettingsService;
 
-        private LogSettings _logSettings;
+        private readonly Correlation _correlation;
 
-        public LogService(LoggingDbContext loggingDbContext, ICredentialService credentialService)
+        public LogService(LoggingDbContext loggingDbContext, ICredentialService credentialService, IAppSettingsService appSettingsService)
         {
             _loggingDbContext = loggingDbContext;
             _credentialService = credentialService;
+            _appSettingsService = appSettingsService;
+
+            _correlation = new Correlation(Guid.NewGuid());
         }
 
-        public void Configure(LogSettings logSettings)
+        public void Log(LogDtoPost logDto)
         {
-            _logSettings = logSettings;
-        }
-
-        public void Log(LogDtoPost logDto, bool validateCredentials = true)
-        {
-            if (validateCredentials)
+            if (!_credentialService.AreValid(logDto.Credential))
             {
-                if (!_credentialService.AreValid(logDto.Credential)) 
-                {
-                    if (logDto.Credential == null) throw new ArgumentNullException("Credential not provided");
-                    throw new UnauthorizedAccessException();
-                }
-                LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logDto.Credential.Id}");
+                if (logDto.Credential == null) throw new ArgumentNullException("Credential not provided");
+                throw new UnauthorizedAccessException();
             }
+            InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logDto.Credential.Id}");
 
             var log = new Log(logDto.Application, logDto.Project, logDto.CorrelationId, logDto.Text, logDto.Type, logDto.Environment);
 
@@ -52,7 +50,7 @@ namespace Logging.Application
                 if (logSearchRequestDto.Credential == null) throw new ArgumentNullException("Credential not provided");
                 throw new UnauthorizedAccessException();
             }
-            LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logSearchRequestDto.Credential.Id}");
+            InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logSearchRequestDto.Credential.Id}");
 
             var page = logSearchRequestDto.Page.Value;
             var pageSize = logSearchRequestDto.PageSize.Value;
@@ -128,46 +126,41 @@ namespace Logging.Application
             return pagedLogs.Select(pl => new LogDtoGet(pl)).ToList();
         }
 
+        //Internal log for Logging in order to avoid infinite loop if Shared.Infrastructure.CrossCutting.Logging.LogService is called
         //Very detailed logs, which may include high-volume information such as protocol payloads. This log level is typically only enabled during development
-        public void LogTraceMessage(string messageToLog)
+        public void InternalLogTraceMessage(string messageToLog)
         {
-            Log(new LogDtoPost
-            {
-                Application = _logSettings.Application,
-                Project = _logSettings.Project,
-                CorrelationId = _logSettings.CorrelationId,
-                Text = messageToLog,
-                Type = LogType.Trace,
-                Environment = _logSettings.Environment
-            }, false);
+            var log = new Log("Infrasctructure", "Logging", _correlation.Id, messageToLog, LogType.Trace, _appSettingsService.Environment.Name);
+            InternalLog(log);
         }
 
+        //Internal log for Logging in order to avoid infinite loop if Shared.Infrastructure.CrossCutting.Logging.LogService is called
         //Information messages, which are normally enabled in production environment
-        public void LogInfoMessage(string messageToLog)
+        public void InternalLogInfoMessage(string messageToLog)
         {
-            Log(new LogDtoPost
-            {
-                Application = _logSettings.Application,
-                Project = _logSettings.Project,
-                CorrelationId = _logSettings.CorrelationId,
-                Text = messageToLog,
-                Type = LogType.Info,
-                Environment = _logSettings.Environment
-            }, false);
+            var log = new Log("Infrasctructure", "Logging", _correlation.Id, messageToLog, LogType.Info, _appSettingsService.Environment.Name);
+            InternalLog(log);
         }
 
+        //Internal log for Logging in order to avoid infinite loop if Shared.Infrastructure.CrossCutting.Logging.LogService is called
         //Error messages - most of the time these are Exceptions
-        public void LogErrorMessage(string messageToLog)
+        public void InternalLogErrorMessage(string messageToLog)
         {
-            Log(new LogDtoPost
+            var log = new Log("Infrasctructure", "Logging", _correlation.Id, messageToLog, LogType.Error, _appSettingsService.Environment.Name);
+            InternalLog(log);
+        }
+
+        private void InternalLog(Log log)
+        {
+            try
             {
-                Application = _logSettings.Application,
-                Project = _logSettings.Project,
-                CorrelationId = _logSettings.CorrelationId,
-                Text = messageToLog,
-                Type = LogType.Error,
-                Environment = _logSettings.Environment
-            }, false);
+                _loggingDbContext.Logs.Add(log);
+                _loggingDbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                throw new LoggingDbException(e.StackTrace);
+            }
         }
     }
 }

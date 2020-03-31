@@ -6,12 +6,10 @@ using System.Security.Claims;
 using System.Text;
 using Authentication.Domain;
 using Authentication.Dtos;
-using Logging.Application;
-using Logging.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
 using Shared.WebApi.Controllers;
 
 namespace Authentication.Controllers
@@ -19,15 +17,13 @@ namespace Authentication.Controllers
     [Route("api/[controller]")]
     public class TokensController : InfrastructureController
     {
-        public TokensController(ICredentialService credentialService, ILogService logService, ICorrelationService correlationService, IConfiguration config) : base(credentialService, logService)
+        public TokensController(ICredentialService credentialService, ILogService logService) : base(credentialService, logService)
         {
-            _logService.Configure(new LogSettings
-            {
-                Application = "Infrastructure",
-                Project = "Authentication",
-                Environment = config.GetValue<string>("Environment"),
-                CorrelationId = correlationService.Create(null, false).Id
-            });
+        }
+
+        protected override void ConfigureLogging()
+        {
+            _logService.UseProject("Authentication");
         }
 
         [HttpPost]

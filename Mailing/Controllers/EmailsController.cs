@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Reflection;
-using Logging.Application;
-using Logging.Application.Dtos;
 using Mailing.Domain;
 using Mailing.Dtos;
 using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using MimeKit;
 using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
 using Shared.WebApi.Controllers;
 
 namespace Mailing.Controllers
@@ -16,15 +14,13 @@ namespace Mailing.Controllers
     [Route("api/[controller]")]
     public class EmailsController : InfrastructureController
     {
-        public EmailsController(ICredentialService credentialService, ILogService logService, ICorrelationService correlationService, IConfiguration config) : base(credentialService, logService)
+        public EmailsController(ICredentialService credentialService, ILogService logService) : base(credentialService, logService)
         {
-            _logService.Configure(new LogSettings
-            {
-                Application = "Infrastructure",
-                Project = "Mailing",
-                Environment = config.GetValue<string>("Environment"),
-                CorrelationId = correlationService.Create(null, false).Id
-            });
+        }
+
+        protected override void ConfigureLogging()
+        {
+            _logService.UseProject("Mailing");
         }
 
         [HttpPost]

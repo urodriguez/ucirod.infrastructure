@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using Logging.Application;
+﻿using Logging.Application;
 using Logging.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Infrastructure.CrossCutting.AppSettings;
 using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging
@@ -25,15 +25,11 @@ namespace Logging
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            var envConnectionString = new Dictionary<string, string>
-            {
-                { "DEV", "Server=localhost;Database=UciRod.Infrastructure.Logging;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "TEST", "Server=localhost;Database=UciRod.Infrastructure.Logging-Test;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "STAGE", "Server=localhost;Database=UciRod.Infrastructure.Logging-Stage;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "PROD", "Server=localhost;Database=UciRod.Infrastructure.Logging;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" }
-            };
-            var connectionString = envConnectionString[Configuration.GetValue<string>("Environment")];
-            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(connectionString), ServiceLifetime.Singleton);
+            services.AddSingleton<IAppSettingsService>(s => new AppSettingsService(Configuration));
+            var sp = services.BuildServiceProvider();
+            var appSettingsService = sp.GetService<IAppSettingsService>();
+
+            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(appSettingsService.LoggingConnectionString), ServiceLifetime.Singleton);
 
             services.AddSingleton<ICredentialService, CredentialService>();
             services.AddSingleton<ICorrelationService, CorrelationService>();

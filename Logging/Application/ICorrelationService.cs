@@ -5,6 +5,6 @@ namespace Logging.Application
 {
     public interface ICorrelationService
     {
-        CorrelationDto Create(Credential credential, bool validateCredentials = true);
+        CorrelationDto Create(Credential credential);
     }
 }

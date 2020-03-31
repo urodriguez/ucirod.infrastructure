@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
-using Auditing.Infrastructure.Persistence;
-using Logging.Application;
-using Logging.Infrastructure.Persistence;
+﻿using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.Infrastructure.CrossCutting.AppSettings;
 using Shared.Infrastructure.CrossCutting.Authentication;
+using ILogService = Shared.Infrastructure.CrossCutting.Logging.ILogService;
+using LogService = Shared.Infrastructure.CrossCutting.Logging.LogService;
 
 namespace Auditing
 {
@@ -26,30 +26,13 @@ namespace Auditing
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            var env = Configuration.GetValue<string>("Environment");
+            services.AddSingleton<IAppSettingsService>(s => new AppSettingsService(Configuration));
+            var sp = services.BuildServiceProvider();
+            var appSettingsService = sp.GetService<IAppSettingsService>();
 
-            var envAuditingConnectionString = new Dictionary<string, string>
-            {
-                { "DEV", "Server=localhost;Database=UciRod.Infrastructure.Auditing;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "TEST", "Server=localhost;Database=UciRod.Infrastructure.Auditing-Test;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "STAGE", "Server=localhost;Database=UciRod.Infrastructure.Auditing-Stage;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "PROD", "Server=localhost;Database=UciRod.Infrastructure.Auditing;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" }
-            };
-            var auditingConnectionString = envAuditingConnectionString[env];
-            services.AddDbContext<AuditingDbContext>(options => options.UseSqlServer(auditingConnectionString));
-
-            var envLoggingConnectionString = new Dictionary<string, string>
-            {
-                { "DEV", "Server=localhost;Database=UciRod.Infrastructure.Logging;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "TEST", "Server=localhost;Database=UciRod.Infrastructure.Logging-Test;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "STAGE", "Server=localhost;Database=UciRod.Infrastructure.Logging-Stage;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" },
-                { "PROD", "Server=localhost;Database=UciRod.Infrastructure.Logging;User ID=ucirod-infrastructure-user;Password=uc1r0d-1nfr45tructur3-user;Trusted_Connection=True;MultipleActiveResultSets=true" }
-            };
-            var loggingConnectionString = envLoggingConnectionString[env];
-            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(loggingConnectionString), ServiceLifetime.Singleton);
+            services.AddDbContext<AuditingDbContext>(options => options.UseSqlServer(appSettingsService.AuditingConnectionString));
 
             services.AddSingleton<ICredentialService, CredentialService>();
-            services.AddSingleton<ICorrelationService, CorrelationService>();
             services.AddSingleton<ILogService, LogService>();
         }
 
