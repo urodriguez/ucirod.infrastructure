@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Logging.Controllers
 {
-    [Route("api/[controller]")]
     public class LogsController : LoggingController
     {
         public LogsController(ILogService logService) : base(logService)

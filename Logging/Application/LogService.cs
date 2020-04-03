@@ -5,6 +5,7 @@ using System.Reflection;
 using Logging.Application.Dtos;
 using Logging.Domain;
 using Logging.Infrastructure.Persistence;
+using Shared.Application.Exceptions;
 using Shared.Infrastructure.CrossCutting.AppSettings;
 using Shared.Infrastructure.CrossCutting.Authentication;
 using LogType = Logging.Domain.LogType;
@@ -33,7 +34,7 @@ namespace Logging.Application
             if (!_credentialService.AreValid(logDto.Credential))
             {
                 if (logDto.Credential == null) throw new ArgumentNullException("Credential not provided");
-                throw new UnauthorizedAccessException();
+                throw new AuthenticationFailException();
             }
             InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logDto.Credential.Id}");
 
@@ -48,7 +49,7 @@ namespace Logging.Application
             if (!_credentialService.AreValid(logSearchRequestDto.Credential))
             {
                 if (logSearchRequestDto.Credential == null) throw new ArgumentNullException("Credential not provided");
-                throw new UnauthorizedAccessException();
+                throw new AuthenticationFailException();
             }
             InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logSearchRequestDto.Credential.Id}");
 

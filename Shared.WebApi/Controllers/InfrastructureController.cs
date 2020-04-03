@@ -8,6 +8,7 @@ using Shared.Infrastructure.CrossCutting.Logging;
 
 namespace Shared.WebApi.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
     public abstract class InfrastructureController : ControllerBase
     {

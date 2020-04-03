@@ -4,8 +4,6 @@ using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
     public class CorrelationsController : LoggingController
     {
         private readonly ICorrelationService _correlationService;

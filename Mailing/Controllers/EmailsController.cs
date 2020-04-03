@@ -11,7 +11,6 @@ using Shared.WebApi.Controllers;
 
 namespace Mailing.Controllers
 {
-    [Route("api/[controller]")]
     public class EmailsController : InfrastructureController
     {
         public EmailsController(ICredentialService credentialService, ILogService logService) : base(credentialService, logService)

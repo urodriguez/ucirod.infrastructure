@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using Logging.Application.Dtos;
+using Shared.Application.Exceptions;
 using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Application
@@ -21,7 +22,7 @@ namespace Logging.Application
             if (!_credentialService.AreValid(credential))
             {
                 if (credential == null) throw new ArgumentNullException("Credential not provided");
-                throw new UnauthorizedAccessException();
+                throw new AuthenticationFailException();
             }
             _logService.InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={credential.Id}");
 

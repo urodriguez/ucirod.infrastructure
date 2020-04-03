@@ -11,7 +11,6 @@ using Shared.Infrastructure.CrossCutting.Logging;
 
 namespace Auditing.Controllers
 {
-    [Route("api/[controller]")]
     public class SearchsController : AuditingController
     {
         public SearchsController(

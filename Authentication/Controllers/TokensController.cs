@@ -14,7 +14,6 @@ using Shared.WebApi.Controllers;
 
 namespace Authentication.Controllers
 {
-    [Route("api/[controller]")]
     public class TokensController : InfrastructureController
     {
         public TokensController(ICredentialService credentialService, ILogService logService) : base(credentialService, logService)

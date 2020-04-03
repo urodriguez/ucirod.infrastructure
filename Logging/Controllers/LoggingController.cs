@@ -8,6 +8,7 @@ using ILogService = Logging.Application.ILogService;
 
 namespace Logging.Controllers
 {
+    [Route("api/[controller]")]
     [ApiController]
     public abstract class LoggingController : ControllerBase
     {
