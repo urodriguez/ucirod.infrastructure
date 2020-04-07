@@ -9,7 +9,3 @@ GO
 IF COL_LENGTH('dbo.[Audit]', 'Environment') IS NULL
 	alter table audit add Environment varchar(16)
 GO
-
-IF COL_LENGTH('dbo.[Log]', 'Environment') IS NULL
-	alter table dbo.[Log] add Environment varchar(16) NOT NULL
-GO

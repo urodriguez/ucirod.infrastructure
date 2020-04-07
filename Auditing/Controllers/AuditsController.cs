@@ -34,18 +34,18 @@ namespace Auditing.Controllers
             {
                 var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.Entity, auditDto.EntityName, auditDto.Action);
 
-                JObject entityObject = ExtractEntityParsed(audit);
+                JObject entityObject = ExtractEntityObject(audit);
 
                 var idProperty = entityObject.Properties().FirstOrDefault(p => p.Name == "Id");
 
-                if (idProperty == null) throw new Exception($"Entity.Name={audit.EntityName} requires an \"Id\" property to be audited");
+                if (idProperty == null) throw new KeyNotFoundException($"Key/Property \"Id\" not found on Entity.Name={audit.EntityName}");
 
                 audit.SetEntityId(idProperty.Value.ToString());
 
                 _logService.LogInfoMessage($"AuditController.Audit | Audit entity ready | entity={audit.EntityName} - entityId={audit.EntityId} - application={audit.Application} - user={audit.User} - action={audit.Action}");
 
                 var previousAudit = _auditingDbContext.Audits.Where(
-                    a => a.EntityId == audit.EntityId && a.EntityName == audit.EntityName && a.Environment == audit.Environment
+                    a => a.EntityId == audit.EntityId && a.EntityName == audit.EntityName && a.Environment == audit.Environment && a.Application == audit.Application
                 ).OrderByDescending(
                     a => a.CreationDate
                 ).FirstOrDefault();
@@ -71,16 +71,16 @@ namespace Auditing.Controllers
             });
         }
 
-        private static JObject ExtractEntityParsed(Audit audit)
+        private static JObject ExtractEntityObject(Audit audit)
         {
             JObject entityObject;
             try
             {
                 entityObject = JObject.Parse(audit.Entity);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                throw new Exception($"An error has occurred trying to parse Entity.Name={audit.EntityName}. FullStack trace is: {e.Message}");
+                throw new FormatException($"An error has occurred trying to parse Entity.Name={audit.EntityName} - Entity.Id={audit.EntityId}. Check Json format");
             }
 
             return entityObject;
@@ -109,9 +109,9 @@ namespace Auditing.Controllers
                     {
                         oldEntityObject = JObject.Parse(serializedOldEntity);
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
-                        throw new Exception($"An error has occurred trying to parse OldEntity. FullStack trace is: {e.Message}");
+                        throw new FormatException($"An error has occurred trying to parse OldEntity. Check Json format");
                     }
 
                     var jdp = new JsonDiffPatch();

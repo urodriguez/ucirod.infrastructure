@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -64,6 +65,21 @@ namespace Shared.WebApi.Controllers
             {
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentOutOfRangeException | e.Message={aore.Message} - e.StackTrace={aore}");
                 return BadRequest(aore.Message);
+            }            
+            catch (InvalidOperationException ioe)
+            {
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InvalidOperationException | e.Message={ioe.Message} - e.StackTrace={ioe}");
+                return BadRequest(ioe.Message);
+            }            
+            catch (KeyNotFoundException knfe)
+            {
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | KeyNotFoundException | e.Message={knfe.Message} - e.StackTrace={knfe}");
+                return BadRequest(knfe.Message);
+            }            
+            catch (FormatException fe)
+            {
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | FormatException | e.Message={fe.Message} - e.StackTrace={fe}");
+                return BadRequest(fe.Message);
             }
             catch (InternalServerException ise)
             {

@@ -33,59 +33,60 @@ namespace Auditing.Domain
 
         public void SetApplication(string application)
         {
-            if (string.IsNullOrEmpty(application)) throw new Exception("Application field can not be null or empty");
+            if (string.IsNullOrEmpty(application)) throw new ArgumentNullException("Application field can not be null or empty");
             Application = application;
         }
 
         public void SetEnvironment(string environment)
         {
-            if (string.IsNullOrEmpty(environment)) throw new Exception("Environment field can not be null or empty");
+            if (string.IsNullOrEmpty(environment)) throw new ArgumentNullException("Environment field can not be null or empty");
             Environment = environment;
         }
 
         public void SetAction(AuditAction action)
         {
-            if (action != AuditAction.Create && action != AuditAction.Update && action != AuditAction.Delete) throw new Exception("Invalid AuditAction code. Valid codes are: Create = 1, Update = 2, Delete = 3");
+            if (action != AuditAction.Create && action != AuditAction.Update && action != AuditAction.Delete) 
+                throw new ArgumentOutOfRangeException("Invalid AuditAction code. Valid codes are: Create = 1, Update = 2, Delete = 3");
             Action = action;
         }
 
         public void SetUser(string user)
         {
-            if (string.IsNullOrEmpty(user)) throw new Exception("User field can not be null or empty");
+            if (string.IsNullOrEmpty(user)) throw new ArgumentNullException("User field can not be null or empty");
             User = user;
         }
 
         public void SetEntity(string entity)
         {
-            if (string.IsNullOrEmpty(entity)) throw new Exception("Entity can not be null or empty");
+            if (string.IsNullOrEmpty(entity)) throw new ArgumentNullException("Entity can not be null or empty");
             Entity = entity;
         }
 
         public void SetEntityId(string entityId)
         {
-            if (string.IsNullOrEmpty(entityId)) throw new Exception($"Property 'Id' on Entity.Name={EntityName} is null or empty");
+            if (string.IsNullOrEmpty(entityId)) throw new ArgumentNullException($"Property 'Id' on Entity.Name={EntityName} is null or empty");
             EntityId = entityId;
         }
 
         public void SetEntityName(string entityName)
         {
-            if (string.IsNullOrEmpty(entityName)) throw new Exception("EntityName field can not be null or empty");
+            if (string.IsNullOrEmpty(entityName)) throw new ArgumentNullException("EntityName field can not be null or empty");
             EntityName = entityName;
         }
 
         public void SetChanges(string changes)
         {
-            if (string.IsNullOrEmpty(changes)) throw new Exception($"Property 'Changes' on Entity.Name={EntityName} can not be null or empty");
+            if (string.IsNullOrEmpty(changes)) throw new ArgumentNullException($"Property 'Changes' on Entity.Name={EntityName} can not be null or empty");
             Changes = changes;
         }
 
         public static void ValidateForAction(Audit previousAudit, AuditAction auditAction)
         {
             if ((auditAction == AuditAction.Update || auditAction == AuditAction.Delete) && previousAudit == null)
-                throw new Exception("None previous data found. History data is stored in order to calculate changes on 'Update/Delete' action");
+                throw new ArgumentNullException("None previous data found. History data is stored in order to calculate changes on 'Update/Delete' action");
 
             if (auditAction == AuditAction.Create && previousAudit != null)
-                throw new Exception("A previous entity was audited for 'Create' action. Only 'Update/Delete' actions are allowed");
+                throw new InvalidOperationException("Entity has already been audited for 'Create' action. Only 'Update/Delete' actions are allowed");
         }
 
         public void ClearEntityForDelete()
