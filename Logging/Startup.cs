@@ -29,11 +29,11 @@ namespace Logging
             var sp = services.BuildServiceProvider();
             var appSettingsService = sp.GetService<IAppSettingsService>();
 
-            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(appSettingsService.LoggingConnectionString), ServiceLifetime.Singleton);
+            services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(appSettingsService.LoggingConnectionString));
 
-            services.AddSingleton<ICredentialService, CredentialService>();
-            services.AddSingleton<ICorrelationService, CorrelationService>();
-            services.AddSingleton<ILogService, LogService>();
+            services.AddScoped<ICredentialService, CredentialService>();
+            services.AddScoped<ICorrelationService, CorrelationService>();
+            services.AddScoped<ILogService, LogService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
