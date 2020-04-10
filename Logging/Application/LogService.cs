@@ -18,34 +18,59 @@ namespace Logging.Application
         private readonly ICredentialService _credentialService;
         private readonly IAppSettingsService _appSettingsService;
 
-        private readonly Correlation _correlation;
+        private CorrelationDto _correlation;
 
         public LogService(LoggingDbContext loggingDbContext, ICredentialService credentialService, IAppSettingsService appSettingsService)
         {
             _loggingDbContext = loggingDbContext;
             _credentialService = credentialService;
             _appSettingsService = appSettingsService;
-
-            _correlation = new Correlation(Guid.NewGuid());
         }
+
+        private void GenerateCorrelationId()
+        {
+            if (_correlation != null) return;
+
+            var correlationService = new CorrelationService(_credentialService);
+            try
+            {
+                _correlation = correlationService.Create(null, false);
+            }
+            catch (Exception e)
+            {
+                throw new CorrelationException(e.Message, e.StackTrace);
+            }
+        }
+
+        public Guid GetCorrelationId() => _correlation.Id;
 
         public void Log(LogDtoPost logDto)
         {
+            GenerateCorrelationId();
+
             if (!_credentialService.AreValid(logDto.Credential))
             {
                 if (logDto.Credential == null) throw new ArgumentNullException("Credential not provided");
                 throw new AuthenticationFailException();
             }
-            InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logDto.Credential.Id}");
 
             var log = new Log(logDto.Application, logDto.Project, logDto.CorrelationId, logDto.Text, logDto.Type, logDto.Environment);
 
-            _loggingDbContext.Logs.Add(log);
-            _loggingDbContext.SaveChanges();
+            try
+            {
+                _loggingDbContext.Logs.Add(log);
+                _loggingDbContext.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                throw new LoggingDbException(e);
+            }
         }
 
         public IEnumerable<LogDtoGet> Search(LogSearchRequestDto logSearchRequestDto)
         {
+            GenerateCorrelationId();
+
             if (!_credentialService.AreValid(logSearchRequestDto.Credential))
             {
                 if (logSearchRequestDto.Credential == null) throw new ArgumentNullException("Credential not provided");
@@ -160,7 +185,7 @@ namespace Logging.Application
             }
             catch (Exception e)
             {
-                throw new LoggingDbException(e.StackTrace);
+                throw new LoggingDbException(e);
             }
         }
     }

@@ -81,15 +81,32 @@ namespace Shared.WebApi.Controllers
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | FormatException | e.Message={fe.Message} - e.StackTrace={fe}");
                 return BadRequest(fe.Message);
             }
+            catch (CorrelationException ce)
+            {
+                var correlationId = $"CORR_ID_ERROR_{Guid.NewGuid()}";
+                var msgToLog = $"CorrelationId = {correlationId} | {ce}";
+                //TODO: log locally (example: local file, iis) 'msgToLog'
+
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError,
+                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {correlationId}"
+                );
+            }
             catch (InternalServerException ise)
             {
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e.Message={ise.Message} - e.StackTrace={ise}");
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError, 
+                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
+                );
             }
             catch (Exception e)
             {
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Exception | e.Message={e.Message} - e.StackTrace={e}");
-                return StatusCode(StatusCodes.Status500InternalServerError);
+                return StatusCode(
+                    StatusCodes.Status500InternalServerError, 
+                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
+                );
             }
         }
 

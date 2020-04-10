@@ -11,24 +11,15 @@ namespace Shared.Infrastructure.CrossCutting.Logging
         private readonly IRestClient _restClient;
 
         private string _project;
-        private readonly Guid _correlationId;
+        private Guid _correlationId;
 
         public LogService(IAppSettingsService appSettingsService)
         {
             _appSettingsService = appSettingsService;
-
             _restClient = new RestClient(_appSettingsService.LoggingUrl);
-
-            var request = new RestRequest("correlations", Method.POST);
-            var correlationResponse = _restClient.Post<Correlation>(request);
-
-            _correlationId = correlationResponse.Data.Id;
         }
 
-        public void UseProject(string project)
-        {
-            _project = project;
-        }
+        public Guid GetCorrelationId() => _correlationId;
 
         //Very detailed logs, which may include high-volume information such as protocol payloads. This log level is typically only enabled during development
         public void LogTraceMessage(string messageToLog)
@@ -48,9 +39,43 @@ namespace Shared.Infrastructure.CrossCutting.Logging
             LogMessage(messageToLog, LogType.Error);
         }
 
+        private void GenerateCorrelationId()
+        {
+            if (_correlationId != Guid.Empty) return;
+
+            var request = new RestRequest
+            {
+                Resource = "correlations",
+                Method = Method.POST
+            };
+            request.AddJsonBody(new
+            {
+                Id = _appSettingsService.Credential.Id,
+                SecretKey = _appSettingsService.Credential.SecretKey
+            });
+
+            try
+            {
+                var correlationResponse = _restClient.Post<Correlation>(request);
+
+                if (!correlationResponse.IsSuccessful)
+                    throw new Exception(
+                        $"correlationResponse.IsSuccessful=false - correlationResponse.StatusCode={correlationResponse.StatusCode} - correlationResponse.Content={correlationResponse.Content}"
+                    );
+
+                _correlationId = correlationResponse.Data.Id;
+            }
+            catch (Exception e)
+            {
+                throw new CorrelationException(e);
+            }
+        }
+
         private void LogMessage(string messageToLog, LogType logType)
         {
             if (string.IsNullOrEmpty(_project)) throw new Exception("LogService was not configured correctly. Use 'UseProject' method to configure 'Project' field");
+
+            GenerateCorrelationId();
 
             var task = new Task(() =>
             {
@@ -70,15 +95,27 @@ namespace Shared.Infrastructure.CrossCutting.Logging
                     };
                     request.AddJsonBody(log);
 
-                    _restClient.Post(request);
+                    var logResponse = _restClient.Post(request);
+
+                    if (!logResponse.IsSuccessful)
+                        throw new Exception(
+                            $"logResponse.IsSuccessful=false - logResponse.StatusCode={logResponse.StatusCode} - logResponse.Content={logResponse.Content}"
+                        );
                 }
                 catch (Exception e)
                 {
-                    //TODO: queue to resend 
+                    //TODO: log exception locally here: $"{e}"
+                    //queue 'log' data
+                    //do not throw the exception in order to avoid finish the main request
                 }
             });
 
             task.Start();
+        }
+
+        public void UseProject(string project)
+        {
+            _project = project;
         }
     }
 }

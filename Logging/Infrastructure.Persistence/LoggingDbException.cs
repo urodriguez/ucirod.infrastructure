@@ -4,11 +4,8 @@ namespace Logging.Infrastructure.Persistence
 {
     public class LoggingDbException : Exception
     {
-        public string OriginalStackTrace { get; set; }
-
-        public LoggingDbException(string stackTrace) : base("An error on LoggingDb has ocurred")
+        public LoggingDbException(Exception inner) : base("An error has ocurred on LoggingDb", inner)
         {
-            OriginalStackTrace = stackTrace;
         }
     }
 }
