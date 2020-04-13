@@ -32,7 +32,6 @@ namespace Logging
             services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(appSettingsService.LoggingConnectionString));
 
             services.AddScoped<ICredentialService, CredentialService>();
-            services.AddScoped<ICorrelationService, CorrelationService>();
             services.AddScoped<ILogService, LogService>();
         }
 

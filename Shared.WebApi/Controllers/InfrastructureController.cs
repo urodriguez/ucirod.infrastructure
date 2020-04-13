@@ -80,17 +80,6 @@ namespace Shared.WebApi.Controllers
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | FormatException | e.Message={fe.Message} - e.StackTrace={fe}");
                 return BadRequest(fe.Message);
             }
-            catch (CorrelationException ce)
-            {
-                var correlationId = $"CORR_ID_ERROR_{Guid.NewGuid()}";
-                var msgToLog = $"CorrelationId = {correlationId} | {ce}";
-                //TODO: log locally (example: local file, iis) 'msgToLog'
-
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {correlationId}"
-                );
-            }
             catch (InternalServerException ise)
             {
                 _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e={ise}");

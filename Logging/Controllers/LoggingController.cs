@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Reflection;
-using Logging.Application;
 using Logging.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -55,27 +54,13 @@ namespace Logging.Controllers
                 _logService.InternalLogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e.Message={ise.Message} - e.StackTrace={ise}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
-                );
-            }
-            catch (CorrelationException ce)
-            {
-                var correlationId = $"CORR_ID_ERROR_{Guid.NewGuid()}";
-                var msgToLog = $"CorrelationId = {correlationId} | {ce}";
-                //TODO: log locally (example: local file, iis) 'msgToLog'
-
-                return StatusCode(
-                    StatusCodes.Status500InternalServerError,
-                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {correlationId}"
+                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetInternalCorrelationId()}"
                 );
             }
             catch (LoggingDbException ldbe)
             {
                 //Do not call LogService to log this exception in order to avoid infinite loop
-
-                var correlationId = $"LOGGING_DB_ERROR_{Guid.NewGuid()}";
-                var msgToLog = $"CorrelationId = {correlationId} | {ldbe}";
-                //TODO: log locally (example: local file, iis) 'msgToLog'
+                var correlationId = _logService.InternalFileSystemLog($"{ldbe}");
 
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
@@ -87,7 +72,7 @@ namespace Logging.Controllers
                 _logService.InternalLogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Exception | e.Message={e.Message} - e.StackTrace={e}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
+                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetInternalCorrelationId()}"
                 );
             }
         }

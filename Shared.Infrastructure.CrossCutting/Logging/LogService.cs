@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Threading.Tasks;
 using RestSharp;
 using Shared.Infrastructure.CrossCutting.AppSettings;
@@ -39,38 +40,6 @@ namespace Shared.Infrastructure.CrossCutting.Logging
             LogMessage(messageToLog, LogType.Error);
         }
 
-        private void GenerateCorrelationId()
-        {
-            if (_correlationId != Guid.Empty) return;
-
-            var request = new RestRequest
-            {
-                Resource = "correlations",
-                Method = Method.POST
-            };
-            request.AddJsonBody(new
-            {
-                Id = _appSettingsService.Credential.Id,
-                SecretKey = _appSettingsService.Credential.SecretKey
-            });
-
-            try
-            {
-                var correlationResponse = _restClient.Post<Correlation>(request);
-
-                if (!correlationResponse.IsSuccessful)
-                    throw new Exception(
-                        $"correlationResponse.IsSuccessful=false - correlationResponse.StatusCode={correlationResponse.StatusCode} - correlationResponse.Content={correlationResponse.Content}"
-                    );
-
-                _correlationId = correlationResponse.Data.Id;
-            }
-            catch (Exception e)
-            {
-                throw new CorrelationException(e);
-            }
-        }
-
         private void LogMessage(string messageToLog, LogType logType)
         {
             if (string.IsNullOrEmpty(_project)) throw new Exception("LogService was not configured correctly. Use 'UseProject' method to configure 'Project' field");
@@ -104,13 +73,35 @@ namespace Shared.Infrastructure.CrossCutting.Logging
                 }
                 catch (Exception e)
                 {
-                    //TODO: log exception locally here: $"{e}"
+                    //Do not call LogService to log this exception in order to avoid infinite loop
+                    FileSystemLog($"{e}");
+
                     //queue 'log' data
+
                     //do not throw the exception in order to avoid finish the main request
                 }
             });
 
             task.Start();
+        }
+
+        private void GenerateCorrelationId()
+        {
+            _correlationId = _correlationId == Guid.Empty ? Guid.NewGuid() : _correlationId;
+        }
+
+        private void FileSystemLog(string messageToLog)
+        {
+            var fileSystemLogsDirectory = $"{AppDomain.CurrentDomain.BaseDirectory}FileSystemLogs";
+            Directory.CreateDirectory(fileSystemLogsDirectory);
+
+            var logFileName = $"FSL,{_correlationId}";
+            var logFilePath = $"{fileSystemLogsDirectory}\\{logFileName}.txt";
+
+            using (StreamWriter sw = File.CreateText(logFilePath))
+            {
+                sw.WriteLine(messageToLog);
+            }
         }
 
         public void UseProject(string project)

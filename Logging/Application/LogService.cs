@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Logging.Application.Dtos;
@@ -18,7 +19,7 @@ namespace Logging.Application
         private readonly ICredentialService _credentialService;
         private readonly IAppSettingsService _appSettingsService;
 
-        private CorrelationDto _correlation;
+        private Guid _internalCorrelationId;
 
         public LogService(LoggingDbContext loggingDbContext, ICredentialService credentialService, IAppSettingsService appSettingsService)
         {
@@ -27,26 +28,17 @@ namespace Logging.Application
             _appSettingsService = appSettingsService;
         }
 
-        private void GenerateCorrelationId()
+        //Internal correlation Id to track execution from LogService
+        private void GenerateInternalCorrelationId()
         {
-            if (_correlation != null) return;
-
-            var correlationService = new CorrelationService(_credentialService);
-            try
-            {
-                _correlation = correlationService.Create(null, false);
-            }
-            catch (Exception e)
-            {
-                throw new CorrelationException(e.Message, e.StackTrace);
-            }
+            _internalCorrelationId = _internalCorrelationId == Guid.Empty ? Guid.NewGuid() : _internalCorrelationId;
         }
 
-        public Guid GetCorrelationId() => _correlation.Id;
+        public Guid GetInternalCorrelationId() => _internalCorrelationId;
 
         public void Log(LogDtoPost logDto)
         {
-            GenerateCorrelationId();
+            GenerateInternalCorrelationId();
 
             if (!_credentialService.AreValid(logDto.Credential))
             {
@@ -54,6 +46,7 @@ namespace Logging.Application
                 throw new AuthenticationFailException();
             }
 
+            //this CorrelationId comes from outsite, it is not the same to "_internalCorrelationId"
             var log = new Log(logDto.Application, logDto.Project, logDto.CorrelationId, logDto.Text, logDto.Type, logDto.Environment);
 
             try
@@ -67,9 +60,9 @@ namespace Logging.Application
             }
         }
 
-        public IEnumerable<LogDtoGet> Search(LogSearchRequestDto logSearchRequestDto)
+        public IEnumerable<LogSearchResponseDto> Search(LogSearchRequestDto logSearchRequestDto)
         {
-            GenerateCorrelationId();
+            GenerateInternalCorrelationId();
 
             if (!_credentialService.AreValid(logSearchRequestDto.Credential))
             {
@@ -148,14 +141,14 @@ namespace Logging.Application
 
             var pagedLogs = orderedLogs.Skip(page * pageSize).Take(pageSize);
 
-            return pagedLogs.Select(pl => new LogDtoGet(pl)).ToList();
+            return pagedLogs.Select(pl => new LogSearchResponseDto(pl)).ToList();
         }
 
         //Internal log for Logging in order to avoid infinite loop if Shared.Infrastructure.CrossCutting.Logging.LogService is called
         //Very detailed logs, which may include high-volume information such as protocol payloads. This log level is typically only enabled during development
         public void InternalLogTraceMessage(string messageToLog)
         {
-            var log = new Log("Infrasctructure", "Logging", _correlation.Id, messageToLog, LogType.Trace, _appSettingsService.Environment.Name);
+            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId.ToString(), messageToLog, LogType.Trace, _appSettingsService.Environment.Name);
             InternalLog(log);
         }
 
@@ -163,7 +156,7 @@ namespace Logging.Application
         //Information messages, which are normally enabled in production environment
         public void InternalLogInfoMessage(string messageToLog)
         {
-            var log = new Log("Infrasctructure", "Logging", _correlation.Id, messageToLog, LogType.Info, _appSettingsService.Environment.Name);
+            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId.ToString(), messageToLog, LogType.Info, _appSettingsService.Environment.Name);
             InternalLog(log);
         }
 
@@ -171,7 +164,7 @@ namespace Logging.Application
         //Error messages - most of the time these are Exceptions
         public void InternalLogErrorMessage(string messageToLog)
         {
-            var log = new Log("Infrasctructure", "Logging", _correlation.Id, messageToLog, LogType.Error, _appSettingsService.Environment.Name);
+            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId.ToString(), messageToLog, LogType.Error, _appSettingsService.Environment.Name);
             InternalLog(log);
         }
 
@@ -186,6 +179,22 @@ namespace Logging.Application
             {
                 throw new LoggingDbException(e);
             }
+        }
+
+        public string InternalFileSystemLog(string messageToLog)
+        {
+            var fileSystemLogsDirectory = $"{AppDomain.CurrentDomain.BaseDirectory}FileSystemLogs";
+            Directory.CreateDirectory(fileSystemLogsDirectory);
+
+            var logFileName = $"FSL,{_internalCorrelationId}";
+            var logFilePath = $"{fileSystemLogsDirectory}\\{logFileName}.txt";
+
+            using (StreamWriter sw = File.CreateText(logFilePath))
+            {
+                sw.WriteLine(messageToLog);
+            }
+
+            return logFileName;
         }
     }
 }

@@ -6,12 +6,15 @@ namespace Logging.Application
 {
     public interface ILogService
     {
-        Guid GetCorrelationId();
+        //From Controllers
         void Log(LogDtoPost logDto);
-        IEnumerable<LogDtoGet> Search(LogSearchRequestDto logSearchRequestDto);
+        IEnumerable<LogSearchResponseDto> Search(LogSearchRequestDto logSearchRequestDto);
 
+        //Internals
+        Guid GetInternalCorrelationId();
         void InternalLogTraceMessage(string messageToLog);
         void InternalLogInfoMessage(string messageToLog);
         void InternalLogErrorMessage(string messageToLog);
+        string InternalFileSystemLog(string messageToLog);
     }
 }
