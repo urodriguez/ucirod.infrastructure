@@ -76,7 +76,6 @@ namespace Logging.Application
                 if (logSearchRequestDto.Credential == null) throw new ArgumentNullException("Credential not provided");
                 throw new AuthenticationFailException();
             }
-            InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={logSearchRequestDto.Credential.Id}");
 
             var page = logSearchRequestDto.Page.Value;
             var pageSize = logSearchRequestDto.PageSize.Value;

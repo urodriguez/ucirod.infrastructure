@@ -33,7 +33,6 @@ namespace Shared.WebApi.Controllers
                     if (credential == null) throw new ArgumentNullException("Credential not provided");
                     throw new AuthenticationFailException();
                 }
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Authorized | credential.Id={credential.Id}");
 
                 var controllerPipelineResult = controllerPipeline.Invoke();
 
