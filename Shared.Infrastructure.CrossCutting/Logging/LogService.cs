@@ -98,9 +98,9 @@ namespace Shared.Infrastructure.CrossCutting.Logging
             var logFileName = $"FSL,{_correlationId}";
             var logFilePath = $"{fileSystemLogsDirectory}\\{logFileName}.txt";
 
-            using (StreamWriter sw = File.CreateText(logFilePath))
+            using (StreamWriter sw = File.AppendText(logFilePath))
             {
-                sw.WriteLine(messageToLog);
+                sw.WriteLine($"{messageToLog}{Environment.NewLine}----------------******----------------{Environment.NewLine}");
             }
         }
 

@@ -34,5 +34,7 @@ namespace Logging.Domain
         public LogType Type { get; set; }
         public string Environment { get; set; }
         public DateTime CreationDate { get; set; }
+
+        public bool HasTextToLog() => !string.IsNullOrEmpty(Text);
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Logging.Application.Dtos;
 using Logging.Domain;
 using Logging.Infrastructure.Persistence;
@@ -48,6 +47,8 @@ namespace Logging.Application
 
             //this CorrelationId comes from outsite, it is not the same to "_internalCorrelationId"
             var log = new Log(logDto.Application, logDto.Project, logDto.CorrelationId, logDto.Text, logDto.Type, logDto.Environment);
+
+            if (!log.HasTextToLog()) return;
 
             try
             {
@@ -170,6 +171,8 @@ namespace Logging.Application
 
         private void InternalLog(Log log)
         {
+            if (!log.HasTextToLog()) return;
+
             try
             {
                 _loggingDbContext.Logs.Add(log);
@@ -189,9 +192,9 @@ namespace Logging.Application
             var logFileName = $"FSL,{_internalCorrelationId}";
             var logFilePath = $"{fileSystemLogsDirectory}\\{logFileName}.txt";
 
-            using (StreamWriter sw = File.CreateText(logFilePath))
+            using (StreamWriter sw = File.AppendText(logFilePath))
             {
-                sw.WriteLine(messageToLog);
+                sw.WriteLine($"{messageToLog}{Environment.NewLine}----------------******----------------{Environment.NewLine}");
             }
 
             return logFileName;

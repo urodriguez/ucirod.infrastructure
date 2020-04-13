@@ -1,5 +1,4 @@
-﻿using System;
-using Logging.Domain;
+﻿using Logging.Domain;
 using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Application.Dtos
