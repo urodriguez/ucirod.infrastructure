@@ -93,7 +93,7 @@ namespace Shared.WebApi.Controllers
             }
             catch (InternalServerException ise)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e.Message={ise.Message} - e.StackTrace={ise}");
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e={ise}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError, 
                     $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
@@ -101,7 +101,7 @@ namespace Shared.WebApi.Controllers
             }
             catch (Exception e)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Exception | e.Message={e.Message} - e.StackTrace={e}");
+                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Exception | e={e}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError, 
                     $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
