@@ -8,7 +8,9 @@ http://www.ucirod.infrastructure-test.com:40000 -> Test (IIS Local - overwritten
 
 ## Logging URL - ENV
 https://localhost:44330 -> Dev (IIS Express - https)
+https://localhost:44330/hangfire
 http://www.ucirod.infrastructure-test.com:40000/logging
+http://www.ucirod.infrastructure-test.com:40000/logging/hangfire
 
 ## Auditing URL - ENV
 https://localhost:44387 -> Dev (IIS Express - https)
