@@ -16,4 +16,4 @@ Web.Debug.config
 
 *.orig
 
-Logs
+FileSystemLogs

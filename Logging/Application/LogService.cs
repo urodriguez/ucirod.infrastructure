@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Logging.Application.Dtos;
 using Logging.Domain;
 using Logging.Infrastructure.Persistence;
@@ -18,27 +19,22 @@ namespace Logging.Application
         private readonly ICredentialService _credentialService;
         private readonly IAppSettingsService _appSettingsService;
 
-        private Guid _internalCorrelationId;
+        private string _internalCorrelationId;
 
         public LogService(LoggingDbContext loggingDbContext, ICredentialService credentialService, IAppSettingsService appSettingsService)
         {
             _loggingDbContext = loggingDbContext;
             _credentialService = credentialService;
             _appSettingsService = appSettingsService;
+
+            //Internal correlation Id to track LogService methods execution
+            _internalCorrelationId = Guid.NewGuid().ToString();
         }
 
-        //Internal correlation Id to track execution from LogService
-        private void GenerateInternalCorrelationId()
-        {
-            _internalCorrelationId = _internalCorrelationId == Guid.Empty ? Guid.NewGuid() : _internalCorrelationId;
-        }
-
-        public Guid GetInternalCorrelationId() => _internalCorrelationId;
+        public string GetInternalCorrelationId() => _internalCorrelationId;
 
         public void Log(LogDtoPost logDto)
         {
-            GenerateInternalCorrelationId();
-
             if (!_credentialService.AreValid(logDto.Credential))
             {
                 if (logDto.Credential == null) throw new ArgumentNullException("Credential not provided");
@@ -48,23 +44,11 @@ namespace Logging.Application
             //this CorrelationId comes from outsite, it is not the same to "_internalCorrelationId"
             var log = new Log(logDto.Application, logDto.Project, logDto.CorrelationId, logDto.Text, logDto.Type, logDto.Environment);
 
-            if (!log.HasTextToLog()) return;
-
-            try
-            {
-                _loggingDbContext.Logs.Add(log);
-                _loggingDbContext.SaveChanges();
-            }
-            catch (Exception e)
-            {
-                throw new LoggingDbException(e);
-            }
+            InsertLogIntoDatabase(log);
         }
 
         public IEnumerable<LogSearchResponseDto> Search(LogSearchRequestDto logSearchRequestDto)
         {
-            GenerateInternalCorrelationId();
-
             if (!_credentialService.AreValid(logSearchRequestDto.Credential))
             {
                 if (logSearchRequestDto.Credential == null) throw new ArgumentNullException("Credential not provided");
@@ -145,11 +129,51 @@ namespace Logging.Application
             return pagedLogs.Select(pl => new LogSearchResponseDto(pl)).ToList();
         }
 
+        public void DeleteOldLogs()
+        {
+            //Remove logs from db
+            try
+            {
+                InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From DB | status=PENDING");
+
+                _loggingDbContext.Logs.RemoveRange(_loggingDbContext.Logs.Where(l => l.CreationDate < DateTime.Today.AddDays(-7)));
+                _loggingDbContext.SaveChanges();
+
+                InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From DB | status=FINISHED");
+            }
+            catch (Exception e)
+            {
+                InternalFileSystemLog($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Logging DB Exception | e={e}");
+            }
+
+            //Remove logs from file system
+            try
+            {
+                InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=PENDING");
+
+                foreach (var fileSystemLogsDirectory in Directory.GetDirectories(_appSettingsService.FileSystemLogsDirectory))
+                {
+                    var directoryInfo = new DirectoryInfo(fileSystemLogsDirectory);
+                    var filesToDelete = directoryInfo.GetFiles("*.txt").Where(f => f.CreationTime < DateTime.Today.AddDays(-7));
+                    foreach (var fileToDelete in filesToDelete)
+                    {
+                        fileToDelete.Delete();
+                    }
+                }
+
+                InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=FINISHED");
+            }
+            catch (Exception e)
+            {
+                InternalLogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Logging FS Exception | e={e}");
+            }
+        }
+
         //Internal log for Logging in order to avoid infinite loop if Shared.Infrastructure.CrossCutting.Logging.LogService is called
         //Very detailed logs, which may include high-volume information such as protocol payloads. This log level is typically only enabled during development
         public void InternalLogTraceMessage(string messageToLog)
         {
-            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId.ToString(), messageToLog, LogType.Trace, _appSettingsService.Environment.Name);
+            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId, messageToLog, LogType.Trace, _appSettingsService.Environment.Name);
             InternalLog(log);
         }
 
@@ -157,7 +181,7 @@ namespace Logging.Application
         //Information messages, which are normally enabled in production environment
         public void InternalLogInfoMessage(string messageToLog)
         {
-            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId.ToString(), messageToLog, LogType.Info, _appSettingsService.Environment.Name);
+            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId, messageToLog, LogType.Info, _appSettingsService.Environment.Name);
             InternalLog(log);
         }
 
@@ -165,11 +189,16 @@ namespace Logging.Application
         //Error messages - most of the time these are Exceptions
         public void InternalLogErrorMessage(string messageToLog)
         {
-            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId.ToString(), messageToLog, LogType.Error, _appSettingsService.Environment.Name);
+            var log = new Log("Infrasctructure", "Logging", _internalCorrelationId, messageToLog, LogType.Error, _appSettingsService.Environment.Name);
             InternalLog(log);
         }
 
         private void InternalLog(Log log)
+        {
+            InsertLogIntoDatabase(log);
+        }
+
+        private void InsertLogIntoDatabase(Log log)
         {
             if (!log.HasTextToLog()) return;
 
@@ -184,20 +213,21 @@ namespace Logging.Application
             }
         }
 
-        public string InternalFileSystemLog(string messageToLog)
+        public void InternalFileSystemLog(string messageToLog)
         {
-            var fileSystemLogsDirectory = $"{AppDomain.CurrentDomain.BaseDirectory}FileSystemLogs";
-            Directory.CreateDirectory(fileSystemLogsDirectory);
+            var projFileSystemLogsDirectory = $"{_appSettingsService.FileSystemLogsDirectory}\\Logging";
+            Directory.CreateDirectory(projFileSystemLogsDirectory);
 
-            var logFileName = $"FSL,{_internalCorrelationId}";
-            var logFilePath = $"{fileSystemLogsDirectory}\\{logFileName}.txt";
+            //add FSL code for File System Log
+            _internalCorrelationId = $"FSL,{_internalCorrelationId}";
+
+            var logFileName = _internalCorrelationId;
+            var logFilePath = $"{projFileSystemLogsDirectory}\\{logFileName}.txt";
 
             using (StreamWriter sw = File.AppendText(logFilePath))
             {
                 sw.WriteLine($"{messageToLog}{Environment.NewLine}----------------******----------------{Environment.NewLine}");
             }
-
-            return logFileName;
         }
     }
 }

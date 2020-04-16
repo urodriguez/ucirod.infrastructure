@@ -1,4 +1,5 @@
-﻿using Shared.Infrastructure.CrossCutting.Authentication;
+﻿using System.Data.Common;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Shared.Infrastructure.CrossCutting.AppSettings
 {
@@ -7,6 +8,9 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
         string AuditingConnectionString { get; }
         Credential Credential { get; }
         InsfrastructureEnvironment Environment { get; }
+        string FileSystemLogsDirectory { get; }
+        string HangfireLoggingConnectionString { get; }
+        string InsfrastructureDirectory { get; }
         string LoggingConnectionString { get; }
         string LoggingUrl { get; }
     }

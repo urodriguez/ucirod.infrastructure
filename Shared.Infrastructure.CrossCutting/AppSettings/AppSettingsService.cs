@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Shared.Infrastructure.CrossCutting.Authentication;
@@ -36,6 +37,41 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
         {
             Name = _configuration.GetValue<string>("Environment")
         };
+
+        public string FileSystemLogsDirectory => $"{InsfrastructureDirectory}\\FileSystemLogs";
+
+
+        public string HangfireLoggingConnectionString
+        {
+            get
+            {
+                switch (Environment.Name)
+                {
+                    case "DEV": return   "Server=localhost;Database=UciRod.Infrastructure.Logging.Hangfire;Integrated Security=SSPI;";
+                    case "TEST": return  "Server=localhost;Database=UciRod.Infrastructure.Logging.Hangfire-Test;Integrated Security=SSPI;";
+                    case "STAGE": return "Server=localhost;Database=UciRod.Infrastructure.Logging.Hangfire-Stage;Integrated Security=SSPI;";
+                    case "PROD": return  "Server=localhost;Database=UciRod.Infrastructure.Logging.Hangfire;Integrated Security=SSPI;";
+
+                    default: throw new ArgumentOutOfRangeException($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Invalid Environment");
+                }
+            }
+        }
+
+        public string InsfrastructureDirectory
+        {
+            get
+            {
+                switch (Environment.Name)
+                {
+                    case "DEV": return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin")), @".."));
+                    case "TEST":
+                    case "STAGE":
+                    case "PROD": return Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @".."));
+
+                    default: throw new ArgumentOutOfRangeException($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Invalid Environment");
+                }
+            }
+        }
 
         public string LoggingConnectionString
         {

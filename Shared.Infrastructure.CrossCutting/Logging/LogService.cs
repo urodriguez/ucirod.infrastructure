@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using RestSharp;
 using Shared.Infrastructure.CrossCutting.AppSettings;
@@ -12,12 +13,16 @@ namespace Shared.Infrastructure.CrossCutting.Logging
         private readonly IRestClient _restClient;
 
         private string _project;
-        private Guid _correlationId;
+        private readonly Guid _correlationId;
+
+        private static readonly object Locker = new Object();
 
         public LogService(IAppSettingsService appSettingsService)
         {
             _appSettingsService = appSettingsService;
             _restClient = new RestClient(_appSettingsService.LoggingUrl);
+
+            _correlationId = Guid.NewGuid();
         }
 
         public Guid GetCorrelationId() => _correlationId;
@@ -43,8 +48,6 @@ namespace Shared.Infrastructure.CrossCutting.Logging
         private void LogMessage(string messageToLog, LogType logType)
         {
             if (string.IsNullOrEmpty(_project)) throw new Exception("LogService was not configured correctly. Use 'UseProject' method to configure 'Project' field");
-
-            GenerateCorrelationId();
 
             var task = new Task(() =>
             {
@@ -85,22 +88,21 @@ namespace Shared.Infrastructure.CrossCutting.Logging
             task.Start();
         }
 
-        private void GenerateCorrelationId()
-        {
-            _correlationId = _correlationId == Guid.Empty ? Guid.NewGuid() : _correlationId;
-        }
-
         private void FileSystemLog(string messageToLog)
         {
-            var fileSystemLogsDirectory = $"{AppDomain.CurrentDomain.BaseDirectory}FileSystemLogs";
-            Directory.CreateDirectory(fileSystemLogsDirectory);
+            var projFileSystemLogsDirectory = $"{_appSettingsService.FileSystemLogsDirectory}\\{_project}";
+            Directory.CreateDirectory(projFileSystemLogsDirectory);
 
             var logFileName = $"FSL,{_correlationId}";
-            var logFilePath = $"{fileSystemLogsDirectory}\\{logFileName}.txt";
+            var logFilePath = $"{projFileSystemLogsDirectory}\\{logFileName}.txt";
 
-            using (StreamWriter sw = File.AppendText(logFilePath))
+            lock (Locker)
             {
-                sw.WriteLine($"{messageToLog}{Environment.NewLine}----------------******----------------{Environment.NewLine}");
+                using (FileStream file = new FileStream(logFilePath, FileMode.Append, FileAccess.Write, FileShare.Read))
+                using (StreamWriter sw = new StreamWriter(file, Encoding.Unicode))
+                {
+                    sw.WriteLine($"{messageToLog}{Environment.NewLine}----------------******----------------{Environment.NewLine}");
+                }
             }
         }
 

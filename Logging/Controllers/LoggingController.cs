@@ -60,11 +60,10 @@ namespace Logging.Controllers
             catch (LoggingDbException ldbe)
             {
                 //Do not call LogService to log this exception in order to avoid infinite loop
-                var correlationId = _logService.InternalFileSystemLog($"{ldbe}");
-
+                _logService.InternalFileSystemLog($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | LoggingDbException | e={ldbe}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
-                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {correlationId}"
+                    $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetInternalCorrelationId()}"
                 );
             }            
             catch (Exception e)

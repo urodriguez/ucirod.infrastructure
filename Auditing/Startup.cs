@@ -33,7 +33,7 @@ namespace Auditing
             services.AddDbContext<AuditingDbContext>(options => options.UseSqlServer(appSettingsService.AuditingConnectionString));
 
             services.AddSingleton<ICredentialService, CredentialService>();
-            services.AddSingleton<ILogService, LogService>();
+            services.AddScoped<ILogService, LogService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

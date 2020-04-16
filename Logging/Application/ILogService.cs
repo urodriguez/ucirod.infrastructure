@@ -9,12 +9,13 @@ namespace Logging.Application
         //From Controllers
         void Log(LogDtoPost logDto);
         IEnumerable<LogSearchResponseDto> Search(LogSearchRequestDto logSearchRequestDto);
+        void DeleteOldLogs();
 
         //Internals
-        Guid GetInternalCorrelationId();
+        string GetInternalCorrelationId();
         void InternalLogTraceMessage(string messageToLog);
         void InternalLogInfoMessage(string messageToLog);
         void InternalLogErrorMessage(string messageToLog);
-        string InternalFileSystemLog(string messageToLog);
+        void InternalFileSystemLog(string messageToLog);
     }
 }
