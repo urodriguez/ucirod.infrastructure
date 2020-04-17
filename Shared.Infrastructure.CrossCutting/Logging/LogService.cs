@@ -13,7 +13,7 @@ namespace Shared.Infrastructure.CrossCutting.Logging
         private readonly IRestClient _restClient;
 
         private string _project;
-        private readonly Guid _correlationId;
+        private readonly string _correlationId;
 
         private static readonly object Locker = new Object();
 
@@ -22,10 +22,10 @@ namespace Shared.Infrastructure.CrossCutting.Logging
             _appSettingsService = appSettingsService;
             _restClient = new RestClient(_appSettingsService.LoggingUrl);
 
-            _correlationId = Guid.NewGuid();
+            _correlationId = Guid.NewGuid().ToString();
         }
 
-        public Guid GetCorrelationId() => _correlationId;
+        public string GetCorrelationId() => _correlationId;
 
         //Very detailed logs, which may include high-volume information such as protocol payloads. This log level is typically only enabled during development
         public void LogTraceMessage(string messageToLog)
