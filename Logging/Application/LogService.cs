@@ -151,17 +151,25 @@ namespace Logging.Application
             {
                 InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=PENDING");
 
+                
                 foreach (var fileSystemLogsDirectory in Directory.GetDirectories(_appSettingsService.FileSystemLogsDirectory))
                 {
                     var directoryInfo = new DirectoryInfo(fileSystemLogsDirectory);
                     var filesToDelete = directoryInfo.GetFiles("*.txt").Where(f => f.CreationTime < DateTime.Today.AddDays(-7));
+                    var filesDeleted = 0;
                     foreach (var fileToDelete in filesToDelete)
                     {
                         fileToDelete.Delete();
+                        filesDeleted++;
                     }
-                }
 
-                InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=FINISHED");
+                    InternalLogInfoMessage(
+                        filesToDelete.Count() != filesDeleted ?
+                            $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=INCOMPLED - fileSystemLogsDirectory={fileSystemLogsDirectory} - filesToDelete={filesToDelete.Count()} - filesDeleted={filesDeleted}"
+                            :
+                            $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=FINISHED - fileSystemLogsDirectory={fileSystemLogsDirectory} - filesToDelete={filesToDelete.Count()} - filesDeleted={filesDeleted}"
+                    );
+                }
             }
             catch (Exception e)
             {
