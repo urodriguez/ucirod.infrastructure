@@ -28,6 +28,15 @@ namespace Logging
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
+            services.AddApiVersioning(config =>
+            {
+                // Specify the default API Version
+                config.DefaultApiVersion = new ApiVersion(1, 0);
+
+                // Advertise the API versions supported for the particular endpoint
+                config.ReportApiVersions = true;
+            });
+
             services.AddSingleton<IAppSettingsService>(s => new AppSettingsService(Configuration));
             var sp = services.BuildServiceProvider();
             var appSettingsService = sp.GetService<IAppSettingsService>();

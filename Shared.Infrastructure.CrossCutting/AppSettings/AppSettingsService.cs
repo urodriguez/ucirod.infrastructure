@@ -89,7 +89,7 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
             }
         }
 
-        public string LoggingUrl
+        public string LoggingApiUrlV1
         {
             get
             {
@@ -97,14 +97,16 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
 
                 switch (Environment.Name)
                 {
-                    case "DEV":   return $"http://www.ucirod.infrastructure-test.com:40000/{project}/api";
-                    case "TEST":  return $"http://www.ucirod.infrastructure-test.com:40000/{project}/api";
-                    case "STAGE": return $"http://www.ucirod.infrastructure-stage.com:40000/{project}/api";
-                    case "PROD":  return $"http://www.ucirod.infrastructure.com:40000/{project}/api";
+                    case "DEV":   return $"http://www.ucirod.infrastructure-test.com:40000/{project}/api/v1.0";
+                    case "TEST":  return $"http://www.ucirod.infrastructure-test.com:40000/{project}/api/v1.0";
+                    case "STAGE": return $"http://www.ucirod.infrastructure-stage.com:40000/{project}/api/v1.0";
+                    case "PROD":  return $"http://www.ucirod.infrastructure.com:40000/{project}/api/v1.0";
 
                     default: throw new ArgumentOutOfRangeException($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Invalid Environment");
                 }
             }
         }
+
+        public string LoggingApiUrlV2 => LoggingApiUrlV1.Replace("v1.0", "v2.0");
     }
 }

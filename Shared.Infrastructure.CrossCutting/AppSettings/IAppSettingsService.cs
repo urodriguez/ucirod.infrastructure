@@ -12,6 +12,7 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
         string HangfireLoggingConnectionString { get; }
         string InsfrastructureDirectory { get; }
         string LoggingConnectionString { get; }
-        string LoggingUrl { get; }
+        string LoggingApiUrlV1 { get; }
+        string LoggingApiUrlV2 { get; }
     }
 }

@@ -20,7 +20,7 @@ namespace Shared.Infrastructure.CrossCutting.Logging
         public LogService(IAppSettingsService appSettingsService)
         {
             _appSettingsService = appSettingsService;
-            _restClient = new RestClient(_appSettingsService.LoggingUrl);
+            _restClient = new RestClient(_appSettingsService.LoggingApiUrlV1);
 
             _correlationId = Guid.NewGuid().ToString();
         }
