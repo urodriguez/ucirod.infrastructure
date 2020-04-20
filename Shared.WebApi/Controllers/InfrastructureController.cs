@@ -9,8 +9,9 @@ using Shared.Infrastructure.CrossCutting.Logging;
 
 namespace Shared.WebApi.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]
+    [ApiVersion("1.0")]
     public abstract class InfrastructureController : ControllerBase
     {
         private readonly ICredentialService _credentialService;

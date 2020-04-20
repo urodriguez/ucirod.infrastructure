@@ -24,6 +24,15 @@ namespace Mailing
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
+            services.AddApiVersioning(config =>
+            {
+                // Specify the default API Version
+                config.DefaultApiVersion = new ApiVersion(1, 0);
+
+                // Advertise the API versions supported for the particular endpoint
+                config.ReportApiVersions = true;
+            });
+
             services.AddSingleton<IAppSettingsService>(s => new AppSettingsService(Configuration));
             services.AddSingleton<ICredentialService, CredentialService>();
             services.AddScoped<ILogService, LogService>();
