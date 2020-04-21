@@ -1,58 +1,13 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Shared.Infrastructure.CrossCutting.AppSettings;
-using Shared.Infrastructure.CrossCutting.Authentication;
-using ILogService = Shared.Infrastructure.CrossCutting.Logging.ILogService;
-using LogService = Shared.Infrastructure.CrossCutting.Logging.LogService;
+﻿using Microsoft.Extensions.Configuration;
+using Shared.WebApi;
 
 namespace Authentication
 {
-    public class Startup
+    public class Startup : BaseStartup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration) : base(configuration)
         {
-            Configuration = configuration;
-        }
 
-        public IConfiguration Configuration { get; }
-
-        // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
-        {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-
-            services.AddApiVersioning(config =>
-            {
-                // Specify the default API Version
-                config.DefaultApiVersion = new ApiVersion(1, 0);
-
-                // Advertise the API versions supported for the particular endpoint
-                config.ReportApiVersions = true;
-            });
-
-            services.AddSingleton<IAppSettingsService>(s => new AppSettingsService(Configuration));
-            services.AddSingleton<ICredentialService, CredentialService>();
-            services.AddScoped<ILogService, LogService>();
-        }
-
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
-
-            app.UseHttpsRedirection();
-            app.UseMvc();
         }
     }
 }
