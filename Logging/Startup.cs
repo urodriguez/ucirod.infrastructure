@@ -39,8 +39,7 @@ namespace Logging
             });
 
             services.AddSingleton<IAppSettingsService>(s => new AppSettingsService(Configuration));
-            var sp = services.BuildServiceProvider();
-            var appSettingsService = sp.GetService<IAppSettingsService>();
+            var appSettingsService = services.BuildServiceProvider().GetService<IAppSettingsService>();
 
             services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(appSettingsService.LoggingConnectionString));
 
