@@ -14,6 +14,7 @@ using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging
 {
+    //Do not use BaseStartup (differents services injection)
     public class Startup
     {
         public Startup(IConfiguration configuration)
