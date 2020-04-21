@@ -1,5 +1,4 @@
-﻿using System;
-using Shared.Infrastructure.CrossCutting.Authentication;
+﻿using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Shared.Infrastructure.CrossCutting.Logging
 {

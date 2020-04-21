@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Application", "Share
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.WebApi", "Shared.WebApi\Shared.WebApi.csproj", "{24745F3E-0F4A-49EB-A969-8337330C3EC7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared.Infrastructure.CrossCutting", "Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj", "{6401E0BD-3B80-4B01-B6E9-666D38601731}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Infrastructure.CrossCutting", "Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj", "{6401E0BD-3B80-4B01-B6E9-666D38601731}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reporting", "Reporting\Reporting.csproj", "{48C785F8-D635-4404-A11B-926C13E7DDCF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Release|Any CPU.Build.0 = Release|Any CPU
+		{48C785F8-D635-4404-A11B-926C13E7DDCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{48C785F8-D635-4404-A11B-926C13E7DDCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{48C785F8-D635-4404-A11B-926C13E7DDCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{48C785F8-D635-4404-A11B-926C13E7DDCF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
