@@ -1,4 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using jsreport.AspNetCore;
+using jsreport.Binary;
+using jsreport.Local;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Shared.WebApi;
 
 namespace Reporting
@@ -8,6 +12,13 @@ namespace Reporting
         public Startup(IConfiguration configuration) : base(configuration)
         {
 
+        }
+
+        public override void ConfigureServices(IServiceCollection services)
+        {
+            base.ConfigureServices(services);
+
+            services.AddJsReport(new LocalReporting().UseBinary(JsReportBinary.GetBinary()).AsUtility().Create());
         }
     }
 }
