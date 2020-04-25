@@ -7,6 +7,6 @@ namespace Reporting
     {
         public Credential Credential { get; set; }
         public string Template { get; set; }
-        public JObject Data { get; set; }
+        public string Data { get; set; }
     }
 }
