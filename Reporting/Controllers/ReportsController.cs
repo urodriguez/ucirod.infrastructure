@@ -51,7 +51,10 @@ namespace Reporting.Controllers
                     reportRendered.Content.CopyTo(ms);
                     _logService.LogInfoMessage($"{GetType().Name}.{methodName}  | Report as bite array built | credential.Id={reportDto.Credential.Id} - ms.Length={ms.Length}");
 
-                    return Ok(ms.ToArray());
+                    return Ok(new
+                    {
+                        Report = ms.ToArray(),
+                    });
                 }
             });
         }
