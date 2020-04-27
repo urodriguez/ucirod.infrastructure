@@ -1,4 +1,5 @@
-﻿using Shared.Infrastructure.CrossCutting.Authentication;
+﻿using System.Collections.Generic;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Mailing.Dtos
 {
@@ -10,5 +11,6 @@ namespace Mailing.Dtos
         public string To { get; set; }
         public string Subject { get; set; }
         public string Body { get; set; }
+        public IEnumerable<AttachmentDto> Attachments { get; set; }
     }
 }

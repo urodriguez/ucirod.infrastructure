@@ -1,13 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using Mailing.Domain;
 using Mailing.Dtos;
-using MailKit.Net.Smtp;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
 using Shared.Infrastructure.CrossCutting.Authentication;
 using Shared.Infrastructure.CrossCutting.Logging;
 using Shared.WebApi.Controllers;
+using Attachment = Mailing.Domain.Attachment;
+using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace Mailing.Controllers
 {
@@ -39,7 +41,7 @@ namespace Mailing.Controllers
                         _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Invalid request data| msg={msg} - emailDto.To={emailDto.To}");
                         throw new ArgumentNullException(msg);
                     }
-
+                    
                     email = new Email(
                         emailDto.SmtpServerConfiguration.Sender.Name,
                         emailDto.SmtpServerConfiguration.Sender.Email,
@@ -55,7 +57,19 @@ namespace Mailing.Controllers
                 else
                 {
                     _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Using UciRod SmtpServer | emailDto.To={emailDto.To}");
-                    email = new Email(emailDto.To, emailDto.Subject, emailDto.Body);
+                    email = new Email(
+                        emailDto.To,
+                        emailDto.Subject,
+                        emailDto.Body
+                    );
+                }
+
+                if (emailDto.Attachments != null)
+                {
+                    foreach (var attachment in emailDto.Attachments)
+                    {
+                        email.AddAttachment(attachment.FileContent, attachment.FileName);
+                    }
                 }
 
                 var mimeMessage = new MimeMessage();
@@ -66,10 +80,7 @@ namespace Mailing.Controllers
 
                 mimeMessage.Subject = email.Subject;
 
-                mimeMessage.Body = new TextPart("html")
-                {
-                    Text = email.Body
-                };
+                SetBody(mimeMessage, email.Body, email.Attachments);
 
                 using (var client = new SmtpClient())
                 {
@@ -110,6 +121,18 @@ namespace Mailing.Controllers
                     return Ok();
                 }
             });
+        }
+
+        private static void SetBody(MimeMessage mimeMessage, string body, IEnumerable<Attachment> attachments)
+        {
+            var builder = new BodyBuilder { HtmlBody = body };
+
+            foreach (var attachment in attachments)
+            {
+                builder.Attachments.Add(attachment.FileName, attachment.FileContent);
+            }
+
+            mimeMessage.Body = builder.ToMessageBody();
         }
     }
 }
