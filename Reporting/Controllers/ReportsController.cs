@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
 using jsreport.AspNetCore;
 using jsreport.Types;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Infrastructure.CrossCutting.AppSettings;
 using Shared.Infrastructure.CrossCutting.Authentication;
 using Shared.Infrastructure.CrossCutting.Logging;
 using Shared.WebApi.Controllers;
@@ -13,10 +15,20 @@ namespace Reporting.Controllers
     public class ReportsController : InfrastructureController
     {
         private readonly IJsReportMVCService _jsReportMvcService;
+        private readonly IAppSettingsService _appSettingsService;
 
-        public ReportsController(ICredentialService credentialService, ILogService logService, IJsReportMVCService jsReportMvcService) : base(credentialService, logService)
+        public ReportsController(
+            ICredentialService credentialService, 
+            ILogService logService,
+            IJsReportMVCService jsReportMvcService,
+            IAppSettingsService appSettingsService
+        ) : base(
+            credentialService, 
+            logService
+        )
         {
             _jsReportMvcService = jsReportMvcService;
+            _appSettingsService = appSettingsService;
         }
 
         protected override void ConfigureLogging()
@@ -46,17 +58,18 @@ namespace Reporting.Controllers
                 });
                 _logService.LogInfoMessage($"{GetType().Name}.{methodName}  | Redering report | credential.Id={reportDto.Credential.Id} - status=FINISHED");
 
-                using (var ms = new MemoryStream())
-                {
-                    reportRendered.Content.CopyTo(ms);
-                    _logService.LogInfoMessage($"{GetType().Name}.{methodName}  | Report as bite array built | credential.Id={reportDto.Credential.Id} - ms.Length={ms.Length}");
+                Directory.CreateDirectory($"{_appSettingsService.ReportsDirectory}");
 
-                    //return Ok(new
-                    //{
-                    //    Report = ms.ToArray(),
-                    //});
-                    return new FileStreamResult(ms, "application/pdf");
+                var reportFileName = $"report_{reportDto.Credential.Id}_{Guid.NewGuid()}.pdf";
+
+                _logService.LogInfoMessage($"{GetType().Name}.{methodName}  | Creating report file | credential.Id={reportDto.Credential.Id} - reportFileName={reportFileName}");
+
+                using (var f = System.IO.File.Create($"{_appSettingsService.ReportsDirectory}\\{reportFileName}"))
+                {
+                    reportRendered.Content.CopyTo(f);
                 }
+
+                return new PhysicalFileResult($"{_appSettingsService.ReportsDirectory}\\{reportFileName}", "application/pdf");
             });
         }
     }

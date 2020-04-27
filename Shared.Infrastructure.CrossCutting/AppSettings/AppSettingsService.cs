@@ -108,5 +108,7 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
         }
 
         public string LoggingApiUrlV2 => LoggingApiUrlV1.Replace("v1.0", "v2.0");
+        public string ReportsDirectory => $"{ReportingDirectory}\\Reports";
+        public string ReportingDirectory => $"{InsfrastructureDirectory}\\Reporting";
     }
 }
