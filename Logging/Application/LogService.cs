@@ -149,7 +149,7 @@ namespace Logging.Application
             //Remove logs from file system
             try
             {
-                InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=PENDING");
+                InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS");
                 
                 foreach (var fileSystemLogsDirectory in Directory.GetDirectories(_appSettingsService.FileSystemLogsDirectory))
                 {
