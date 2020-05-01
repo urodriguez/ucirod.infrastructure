@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Auditing.Domain;
 using Auditing.Dtos;
 using Auditing.Infrastructure.CrossCutting;
 using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
-using JsonDiffPatchDotNet;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Shared.Infrastructure.CrossCutting.Authentication;

@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using Shared.Infrastructure.CrossCutting.Authentication;
+﻿using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Reporting
 {
