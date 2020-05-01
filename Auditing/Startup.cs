@@ -1,4 +1,5 @@
-﻿using Auditing.Infrastructure.Persistence;
+﻿using Auditing.Infrastructure.CrossCutting;
+using Auditing.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +18,7 @@ namespace Auditing
         public override void ConfigureServices(IServiceCollection services)
         {
             base.ConfigureServices(services);
+            services.AddSingleton<IJsonService, JsonService>();
 
             var sp = services.BuildServiceProvider();
             var appSettingsService = sp.GetService<IAppSettingsService>();

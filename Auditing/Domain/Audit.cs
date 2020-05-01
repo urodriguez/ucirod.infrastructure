@@ -7,14 +7,29 @@ namespace Auditing.Domain
         //used for EF
         private Audit() {}
 
-        public Audit(string application, string environment, string user, string entity, string entityName, AuditAction action)
+        public Audit(string application, string environment, string user, string entityId, string entityName, string entity, AuditAction action)
         {
-            SetApplication(application);
-            SetEnvironment(environment);
-            SetUser(user);
-            SetEntity(entity);
-            SetEntityName(entityName);
-            SetAction(action);
+            if (string.IsNullOrEmpty(application)) throw new ArgumentNullException("'Application'. Field can not be null or empty");
+            Application = application;
+
+            if (string.IsNullOrEmpty(environment)) throw new ArgumentNullException("'Environment'. Field can not be null or empty");
+            Environment = environment;
+
+            if (string.IsNullOrEmpty(user)) throw new ArgumentNullException("'User'. Field can not be null or empty");
+            User = user;
+
+            if (string.IsNullOrEmpty(entityId)) throw new ArgumentNullException("'Id'. Field can not be null or empty");
+            EntityId = entityId;
+
+            if (string.IsNullOrEmpty(entityName)) throw new ArgumentNullException("'EntityName'. Field can not be null or empty");
+            EntityName = entityName;
+
+            if (action != AuditAction.Delete && string.IsNullOrEmpty(entity)) throw new ArgumentNullException("'Entity'. Field can not be null or empty when action is Create or Update");
+            Entity = entity;
+
+            if (action != AuditAction.Create && action != AuditAction.Update && action != AuditAction.Delete)
+                throw new ArgumentOutOfRangeException("'Action'. Valid codes are: Create = 1, Update = 2, Delete = 3");
+            Action = action;
 
             Id = Guid.NewGuid();
             CreationDate = DateTime.UtcNow;
@@ -24,55 +39,12 @@ namespace Auditing.Domain
         public string Application { get; private set; }
         public string Environment { get; private set; }
         public string User { get; private set; }
+        public string EntityId { get; private set; }
         public string Entity { get; private set; }
         public string Changes { get; private set; }
-        public string EntityId { get; private set; }
         public string EntityName { get; private set; }
         public AuditAction Action { get; private set; }
         public DateTime CreationDate { get; private set; }
-
-        public void SetApplication(string application)
-        {
-            if (string.IsNullOrEmpty(application)) throw new ArgumentNullException("Application field can not be null or empty");
-            Application = application;
-        }
-
-        public void SetEnvironment(string environment)
-        {
-            if (string.IsNullOrEmpty(environment)) throw new ArgumentNullException("Environment field can not be null or empty");
-            Environment = environment;
-        }
-
-        public void SetAction(AuditAction action)
-        {
-            if (action != AuditAction.Create && action != AuditAction.Update && action != AuditAction.Delete) 
-                throw new ArgumentOutOfRangeException("Invalid AuditAction code. Valid codes are: Create = 1, Update = 2, Delete = 3");
-            Action = action;
-        }
-
-        public void SetUser(string user)
-        {
-            if (string.IsNullOrEmpty(user)) throw new ArgumentNullException("User field can not be null or empty");
-            User = user;
-        }
-
-        public void SetEntity(string entity)
-        {
-            if (string.IsNullOrEmpty(entity)) throw new ArgumentNullException("Entity can not be null or empty");
-            Entity = entity;
-        }
-
-        public void SetEntityId(string entityId)
-        {
-            if (string.IsNullOrEmpty(entityId)) throw new ArgumentNullException($"Property 'Id' on Entity.Name={EntityName} is null or empty");
-            EntityId = entityId;
-        }
-
-        public void SetEntityName(string entityName)
-        {
-            if (string.IsNullOrEmpty(entityName)) throw new ArgumentNullException("EntityName field can not be null or empty");
-            EntityName = entityName;
-        }
 
         public void SetChanges(string changes)
         {
@@ -80,18 +52,23 @@ namespace Auditing.Domain
             Changes = changes;
         }
 
-        public static void ValidateForAction(Audit previousAudit, AuditAction auditAction)
+        public void CheckIfCanBeAudited(Audit previousAudit)
         {
-            if ((auditAction == AuditAction.Update || auditAction == AuditAction.Delete) && previousAudit == null)
-                throw new ArgumentNullException("None previous data found. History data is stored in order to calculate changes on 'Update/Delete' action");
+            if (previousAudit == null  && (Action == AuditAction.Update || Action == AuditAction.Delete))
+                throw new InvalidOperationException("Missing previous data. Unable to calculate changes. Only 'Create' action is allowed");
 
-            if (auditAction == AuditAction.Create && previousAudit != null)
-                throw new InvalidOperationException("Entity has already been audited for 'Create' action. Only 'Update/Delete' actions are allowed");
+            if (previousAudit != null)
+            {
+                if (previousAudit.EntityDeleted())
+                    throw new InvalidOperationException($"Entity with Id={EntityId} has already been marked as 'Delete'. No actions are allowed");
+
+                if (Action == AuditAction.Create)
+                    throw new InvalidOperationException(
+                        $"An Entity '{EntityName}' with Id={EntityId} has already been audited with 'Create' action, only 'Update/Delete' actions are allowed"
+                    );
+            }
         }
 
-        public void ClearEntityForDelete()
-        {
-            if (Action == AuditAction.Delete) Entity = null;
-        }
+        public bool EntityDeleted() => Action == AuditAction.Delete;
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Auditing.Domain;
 using Auditing.Dtos;
+using Auditing.Infrastructure.CrossCutting;
 using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using JsonDiffPatchDotNet;
@@ -15,16 +16,20 @@ namespace Auditing.Controllers
 {
     public class AuditsController : AuditingController
     {
+        private readonly IJsonService _jsonService;
+
         public AuditsController(
-            AuditingDbContext auditingDbContext, 
-            ICredentialService credentialService, 
-            ILogService logService
+            AuditingDbContext auditingDbContext,
+            ICredentialService credentialService,
+            ILogService logService, 
+            IJsonService jsonService
         ) : base(
             auditingDbContext,
             credentialService,
             logService
         )
         {
+            _jsonService = jsonService;
         }
 
         [HttpPost]
@@ -32,15 +37,7 @@ namespace Auditing.Controllers
         {
             return Execute(auditDto.Credential, () =>
             {
-                var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.Entity, auditDto.EntityName, auditDto.Action);
-
-                JObject entityObject = ExtractEntityObject(audit);
-
-                var idProperty = entityObject.Properties().FirstOrDefault(p => p.Name == "Id");
-
-                if (idProperty == null) throw new KeyNotFoundException($"Key/Property \"Id\" not found on Entity.Name={audit.EntityName}");
-
-                audit.SetEntityId(idProperty.Value.ToString());
+                var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.EntityId, auditDto.EntityName, auditDto.Entity, auditDto.Action);
 
                 _logService.LogInfoMessage($"AuditController.Audit | Audit entity ready | entity={audit.EntityName} - entityId={audit.EntityId} - application={audit.Application} - user={audit.User} - action={audit.Action}");
 
@@ -50,17 +47,20 @@ namespace Auditing.Controllers
                     a => a.CreationDate
                 ).FirstOrDefault();
 
-                Domain.Audit.ValidateForAction(previousAudit, audit.Action);
+                audit.CheckIfCanBeAudited(previousAudit);
 
-                var entityChanges = GetChanges(audit.Entity, previousAudit?.Entity, audit.Action);
-                if (!entityChanges.Any())
+                if (!audit.EntityDeleted())
                 {
-                    _logService.LogInfoMessage($"AuditController.Audit | No changes were detected | audit.EntityId={audit.EntityId}");
-                    return Ok();
-                }
-                audit.SetChanges(JsonConvert.SerializeObject(entityChanges, Formatting.Indented));
+                    var entityChanges = GetEntityChangesJson(audit.Entity, previousAudit?.Entity, audit.Action);
 
-                audit.ClearEntityForDelete();
+                    if (entityChanges == null)
+                    {
+                        _logService.LogInfoMessage($"AuditController.Audit | No changes were detected | audit.EntityId={audit.EntityId}");
+                        return Ok();
+                    }
+
+                    audit.SetChanges(entityChanges.ToString());
+                }
 
                 _auditingDbContext.Audits.Add(audit);
                 _auditingDbContext.SaveChanges();
@@ -71,73 +71,109 @@ namespace Auditing.Controllers
             });
         }
 
-        private static JObject ExtractEntityObject(Audit audit)
+        private JObject GetEntityChangesJson(string serializedEntity, string serializedOldEntity, AuditAction auditAction)
         {
-            JObject entityObject;
-            try
-            {
-                entityObject = JObject.Parse(audit.Entity);
-            }
-            catch (Exception)
-            {
-                throw new FormatException($"An error has occurred trying to parse Entity.Name={audit.EntityName} - Entity.Id={audit.EntityId}. Check Json format");
-            }
+            var entityJsonObject = _jsonService.ExtractJsonJObject(serializedEntity);
 
-            return entityObject;
-        }
-
-        private static IEnumerable<EntityChange> GetChanges(string serializedEntity, string serializedOldEntity, AuditAction auditAction)
-        {
-            var entityObject = JObject.Parse(serializedEntity);
-
-            IEnumerable<EntityChange> entityChanges = null;
+            var entityChanges = new List<EntityChange>();
 
             switch (auditAction)
             {
                 case AuditAction.Create:
-                    entityChanges = entityObject.Properties().Select(ep => new EntityChange
-                    {
-                        Field = ep.Path,
-                        OldValue = "",
-                        NewValue = ep.Value.ToString()
-                    });
+                    entityChanges.AddRange(GetEntityChanges(entityJsonObject));
+
                     break;
 
                 case AuditAction.Update:
-                    JObject oldEntityObject;
-                    try
-                    {
-                        oldEntityObject = JObject.Parse(serializedOldEntity);
-                    }
-                    catch (Exception)
-                    {
-                        throw new FormatException($"An error has occurred trying to parse OldEntity. Check Json format");
-                    }
+                    var oldEntityJsonObject = _jsonService.ExtractJsonJObject(serializedOldEntity);
+                    var diffsJsonObject = (JObject) _jsonService.GetDifferences(entityJsonObject, oldEntityJsonObject);
+                    if (diffsJsonObject == null) return null; //no changes on AuditAction = Update
+                    entityChanges.AddRange(GetEntityChanges(diffsJsonObject));
 
-                    var jdp = new JsonDiffPatch();
-                    var diffsObject = (JObject) jdp.Diff(entityObject, oldEntityObject);
-
-                    if (diffsObject == null) return new List<EntityChange>(); //no changes on AuditAction = Update
-
-                    entityChanges = diffsObject.Properties().Select(ep => new EntityChange
-                    {
-                        Field = ep.Path,
-                        OldValue = JsonConvert.DeserializeObject<List<string>>(ep.Value.ToString()).Last(),
-                        NewValue = JsonConvert.DeserializeObject<List<string>>(ep.Value.ToString()).First()
-                    });
-                    break;
-
-                case AuditAction.Delete:
-                    entityChanges = entityObject.Properties().Select(ep => new EntityChange
-                    {
-                        Field = ep.Path,
-                        OldValue = ep.Value.ToString(),
-                        NewValue = ""
-                    });
                     break;
             }
 
+            var changesJsonObject = new JObject();
+            SetChangesJsonArray(changesJsonObject, entityChanges);
+
+            return changesJsonObject;
+        }
+
+        private static IEnumerable<EntityChange> GetEntityChanges(JObject jsonObject, string entityPath = "")
+        {
+            var entityChanges = new List<EntityChange>();
+
+            foreach (var jop in jsonObject.Properties())
+            {
+                switch (jop.Value.Type)
+                {
+                    case JTokenType.Object: //recursive call
+                    {
+                        var nestedObject = JsonConvert.DeserializeObject<JObject>(jop.Value.ToString());
+                        var nestedEntityPath = entityPath == "" ? $"{jop.Path}." : $"{entityPath}{jop.Path}.";
+                        entityChanges.AddRange(GetEntityChanges(nestedObject, nestedEntityPath));
+
+                        break;
+                    }                    
+                    
+                    case JTokenType.Array: //update case
+                    {
+                        entityChanges.Add(new EntityChange
+                        {
+                            Field = entityPath == "" ? jop.Path : $"{entityPath}{jop.Path}",
+                            OldValue = JsonConvert.DeserializeObject<List<string>>(jop.Value.ToString()).Last(),
+                            NewValue = JsonConvert.DeserializeObject<List<string>>(jop.Value.ToString()).First()
+                        });
+
+                        break;
+                    }
+
+                    default: //create case
+                    {
+                        entityChanges.Add(new EntityChange
+                        {
+                            Field = entityPath == "" ? jop.Path : $"{entityPath}{jop.Path}",
+                            OldValue = "undefined",
+                            NewValue = jop.Value.ToString()
+                        });
+
+                        break;
+                    }
+                }
+            }
+
             return entityChanges;
+        }
+
+        private static void SetChangesJsonArray(JObject changesJsonObject, IEnumerable<EntityChange> entityChanges)
+        {
+            changesJsonObject["Changes"] = new JArray();
+
+            var props = entityChanges.GetNotDuplicatedPropertyNames();
+            foreach(var p in props) {
+                if (entityChanges.IsNestedObject(p))
+                {
+                    var nestedObjectJson = new JObject
+                    {
+                        ["Field"] = $"{p}",
+                        ["Changes"] = new JArray()
+                    };
+
+                    var nestedEntityChanges = entityChanges.Where(
+                        ec => ec.Field.Contains(p)
+                    ).Select(
+                        ec => new EntityChange {Field = ec.Field.Replace($"{p}.", ""), OldValue = ec.OldValue, NewValue = ec.NewValue}
+                    ).ToList();
+
+                    SetChangesJsonArray(nestedObjectJson, nestedEntityChanges);
+                    ((JArray)changesJsonObject["Changes"]).Add(JObject.FromObject(nestedObjectJson));
+                }
+                else
+                {
+                    var entityChange = entityChanges.Where(ec => !ec.Field.Contains(".")).First(ec => ec.Field.Equals(p));
+                    ((JArray)changesJsonObject["Changes"]).Add(JObject.FromObject(entityChange));
+                }
+            }
         }
     }
 }
