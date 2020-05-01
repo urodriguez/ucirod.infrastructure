@@ -78,7 +78,7 @@ namespace Auditing.Controllers
             switch (auditAction)
             {
                 case AuditAction.Create:
-                    entityChanges.AddRange(GetEntityChanges(entityJsonObject));
+                    entityChanges.AddRange(GetEntityChanges(entityJsonObject, AuditAction.Create));
 
                     break;
 
@@ -86,7 +86,7 @@ namespace Auditing.Controllers
                     var oldEntityJsonObject = _jsonService.ExtractJsonJObject(serializedOldEntity);
                     var diffsJsonObject = (JObject) _jsonService.GetDifferences(entityJsonObject, oldEntityJsonObject);
                     if (diffsJsonObject == null) return null; //no changes on AuditAction = Update
-                    entityChanges.AddRange(GetEntityChanges(diffsJsonObject));
+                    entityChanges.AddRange(GetEntityChanges(diffsJsonObject, AuditAction.Update));
 
                     break;
             }
@@ -97,7 +97,7 @@ namespace Auditing.Controllers
             return changesJsonObject;
         }
 
-        private static IEnumerable<EntityChange> GetEntityChanges(JObject jsonObject, string entityPath = "")
+        private static IEnumerable<EntityChange> GetEntityChanges(JObject jsonObject, AuditAction action, string entityPath = "")
         {
             var entityChanges = new List<EntityChange>();
 
@@ -109,28 +109,48 @@ namespace Auditing.Controllers
                     {
                         var nestedObject = JsonConvert.DeserializeObject<JObject>(jop.Value.ToString());
                         var nestedEntityPath = entityPath == "" ? $"{jop.Path}." : $"{entityPath}{jop.Path}.";
-                        entityChanges.AddRange(GetEntityChanges(nestedObject, nestedEntityPath));
+                        entityChanges.AddRange(GetEntityChanges(nestedObject, action, nestedEntityPath));
 
                         break;
                     }                    
                     
-                    case JTokenType.Array: //update case
+                    case JTokenType.Array:
                     {
-                        entityChanges.Add(new EntityChange
+                        switch (action)
                         {
-                            Field = entityPath == "" ? jop.Path : $"{entityPath}{jop.Path}",
-                            OldValue = JsonConvert.DeserializeObject<List<string>>(jop.Value.ToString()).Last(),
-                            NewValue = JsonConvert.DeserializeObject<List<string>>(jop.Value.ToString()).First()
-                        });
+                            case AuditAction.Create:
+                                foreach (var arrayItemJsonObject in (JArray)jop.Value)
+                                {
+                                    var nestedEntityPath = entityPath == "" ? $"{arrayItemJsonObject.Path}." : $"{entityPath}{arrayItemJsonObject.Path}.";
+                                    entityChanges.AddRange(GetEntityChanges((JObject)arrayItemJsonObject, AuditAction.Create, nestedEntityPath));
+                                }
+                                break;
+
+                            case AuditAction.Update:
+                                entityChanges.Add(new EntityChange
+                                {
+                                    Field = entityPath == "" ? jop.Path : $"{entityPath}{jop.Path}",
+                                    OldValue = JsonConvert.DeserializeObject<List<string>>(jop.Value.ToString()).Last(),
+                                    NewValue = JsonConvert.DeserializeObject<List<string>>(jop.Value.ToString()).First()
+                                });
+
+                                break;
+                        }
 
                         break;
                     }
 
                     default: //create case
                     {
+                        string field;
+                        if (jop.Path.Contains("[") && jop.Path.Contains("]."))
+                            field = $"{entityPath}{jop.Path.Replace(entityPath, "")}";
+                        else
+                            field = entityPath == "" ? jop.Path : $"{entityPath}{jop.Path}";
+
                         entityChanges.Add(new EntityChange
                         {
-                            Field = entityPath == "" ? jop.Path : $"{entityPath}{jop.Path}",
+                            Field = field,
                             OldValue = "undefined",
                             NewValue = jop.Value.ToString()
                         });
@@ -147,29 +167,36 @@ namespace Auditing.Controllers
         {
             changesJsonObject["Changes"] = new JArray();
 
-            var props = entityChanges.GetNotDuplicatedPropertyNames();
-            foreach(var p in props) {
-                if (entityChanges.IsNestedObject(p))
+            var entityChangeProperties = entityChanges.GetPropertyNamesIgnoringDuplicates().ToList();
+            foreach(var ecp in entityChangeProperties) {
+                if (ecp.Type == EntityChangePropertyType.Plain)
+                {
+                    var entityChange = entityChanges.Where(ec => !ec.Field.Contains(".")).First(ec => ec.Field.Equals(ecp.Name));
+                    ((JArray)changesJsonObject["Changes"]).Add(JObject.FromObject(entityChange));
+                }
+                else
                 {
                     var nestedObjectJson = new JObject
                     {
-                        ["Field"] = $"{p}",
+                        ["Field"] = $"{ecp.Name}",
                         ["Changes"] = new JArray()
                     };
 
                     var nestedEntityChanges = entityChanges.Where(
-                        ec => ec.Field.Contains(p)
+                        ec => ec.Field.Contains(ecp.Name)
                     ).Select(
-                        ec => new EntityChange {Field = ec.Field.Replace($"{p}.", ""), OldValue = ec.OldValue, NewValue = ec.NewValue}
+                        ec => new EntityChange
+                        {
+                            Field = ecp.Type == EntityChangePropertyType.NestedObject 
+                                ? ec.Field.Replace($"{ecp.Name}.", "")
+                                : ec.Field.Replace($"{ecp.Name}[", "").Replace("]", ""),
+                            OldValue = ec.OldValue,
+                            NewValue = ec.NewValue
+                        }
                     ).ToList();
 
                     SetChangesJsonArray(nestedObjectJson, nestedEntityChanges);
                     ((JArray)changesJsonObject["Changes"]).Add(JObject.FromObject(nestedObjectJson));
-                }
-                else
-                {
-                    var entityChange = entityChanges.Where(ec => !ec.Field.Contains(".")).First(ec => ec.Field.Equals(p));
-                    ((JArray)changesJsonObject["Changes"]).Add(JObject.FromObject(entityChange));
                 }
             }
         }
