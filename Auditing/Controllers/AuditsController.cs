@@ -108,7 +108,9 @@ namespace Auditing.Controllers
                     case JTokenType.Object: //recursive call
                     {
                         var nestedObject = JsonConvert.DeserializeObject<JObject>(jop.Value.ToString());
-                        var nestedEntityPath = entityPath == "" ? $"{jop.Path}." : $"{entityPath}{jop.Path}.";
+                        var nestedEntityPath = entityPath == "" 
+                            ? $"{jop.Path.Split(".").Last()}." 
+                            : $"{entityPath}{jop.Path.Split(".").Last()}.";
                         entityChanges.AddRange(GetEntityChanges(nestedObject, action, nestedEntityPath));
 
                         break;
@@ -121,7 +123,9 @@ namespace Auditing.Controllers
                             case AuditAction.Create:
                                 foreach (var arrayItemJsonObject in (JArray)jop.Value)
                                 {
-                                    var nestedEntityPath = entityPath == "" ? $"{arrayItemJsonObject.Path}." : $"{entityPath}{arrayItemJsonObject.Path}.";
+                                    var nestedEntityPath = entityPath == "" 
+                                        ? $"{arrayItemJsonObject.Path.Split(".").Last()}." 
+                                        : $"{entityPath}{arrayItemJsonObject.Path.Split(".").Last()}.";
                                     entityChanges.AddRange(GetEntityChanges((JObject)arrayItemJsonObject, AuditAction.Create, nestedEntityPath));
                                 }
                                 break;
@@ -142,9 +146,11 @@ namespace Auditing.Controllers
 
                     default: //create case
                     {
+                        if (jop.Path.Equals("_t") && jop.Value.ToString().Equals("a")) continue;//ignore internal field from JsonDiffPatch framework
+
                         string field;
                         if (jop.Path.Contains("[") && jop.Path.Contains("]."))
-                            field = $"{entityPath}{jop.Path.Replace(entityPath, "")}";
+                            field = $"{entityPath}{jop.Path.Split(".").Last()}";
                         else
                             field = entityPath == "" ? jop.Path : $"{entityPath}{jop.Path}";
 
@@ -167,7 +173,7 @@ namespace Auditing.Controllers
         {
             changesJsonObject["Changes"] = new JArray();
 
-            var entityChangeProperties = entityChanges.GetPropertyNamesIgnoringDuplicates().ToList();
+            var entityChangeProperties = entityChanges.GetPropertyNamesIgnoringDuplicates();
             foreach(var ecp in entityChangeProperties) {
                 if (ecp.Type == EntityChangePropertyType.Plain)
                 {
@@ -183,17 +189,31 @@ namespace Auditing.Controllers
                     };
 
                     var nestedEntityChanges = entityChanges.Where(
-                        ec => ec.Field.Contains(ecp.Name)
+                        ec => ecp.Type == EntityChangePropertyType.NestedObject 
+                            ? ec.Field.Contains($"{ecp.Name}.") 
+                            : ec.Field.Split(".").First().Contains($"{ecp.Name}[")
                     ).Select(
-                        ec => new EntityChange
+                        ec =>
                         {
-                            Field = ecp.Type == EntityChangePropertyType.NestedObject 
-                                ? ec.Field.Replace($"{ecp.Name}.", "")
-                                : ec.Field.Replace($"{ecp.Name}[", "").Replace("]", ""),
-                            OldValue = ec.OldValue,
-                            NewValue = ec.NewValue
+                            string field;
+                            if (ecp.Type == EntityChangePropertyType.NestedObject)
+                            {
+                                field = string.Join(".", ec.Field.Split(".").Skip(1));
+                            }
+                            else
+                            {
+                                var baseField = ec.Field.Split(".").First().Replace($"{ecp.Name}[", "").Replace("]", "");
+                                field = baseField + "." + string.Join(".", ec.Field.Split(".").Skip(1));
+                            }
+
+                            return new EntityChange
+                            {
+                                Field = field,
+                                OldValue = ec.OldValue,
+                                NewValue = ec.NewValue
+                            };
                         }
-                    ).ToList();
+                    );
 
                     SetChangesJsonArray(nestedObjectJson, nestedEntityChanges);
                     ((JArray)changesJsonObject["Changes"]).Add(JObject.FromObject(nestedObjectJson));
