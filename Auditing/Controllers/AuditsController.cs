@@ -47,18 +47,15 @@ namespace Auditing.Controllers
 
                 audit.CheckIfCanBeAudited(previousAudit);
 
-                if (!audit.EntityDeleted())
+                var entityChanges = GetEntityChangesJson(audit.Entity, previousAudit?.Entity, audit.Action);
+
+                if (entityChanges == null)
                 {
-                    var entityChanges = GetEntityChangesJson(audit.Entity, previousAudit?.Entity, audit.Action);
-
-                    if (entityChanges == null)
-                    {
-                        _logService.LogInfoMessage($"AuditController.Audit | No changes were detected | audit.EntityId={audit.EntityId}");
-                        return Ok();
-                    }
-
-                    audit.SetChanges(entityChanges.ToString());
+                    _logService.LogInfoMessage($"AuditController.Audit | No changes were detected | audit.EntityId={audit.EntityId}");
+                    return Ok();
                 }
+
+                audit.SetChanges(entityChanges.ToString());
 
                 _auditingDbContext.Audits.Add(audit);
                 _auditingDbContext.SaveChanges();
@@ -79,7 +76,6 @@ namespace Auditing.Controllers
             {
                 case AuditAction.Create:
                     entityChanges.AddRange(GetEntityChanges(entityJsonObject, AuditAction.Create));
-
                     break;
 
                 case AuditAction.Update:
@@ -87,7 +83,10 @@ namespace Auditing.Controllers
                     var diffsJsonObject = (JObject) _jsonService.GetDifferences(entityJsonObject, oldEntityJsonObject);
                     if (diffsJsonObject == null) return null; //no changes on AuditAction = Update
                     entityChanges.AddRange(GetEntityChanges(diffsJsonObject, AuditAction.Update));
+                    break;
 
+                case AuditAction.Delete:
+                    entityChanges.AddRange(GetEntityChanges(entityJsonObject, AuditAction.Delete));
                     break;
             }
 
@@ -100,6 +99,8 @@ namespace Auditing.Controllers
         private static IEnumerable<EntityChange> GetEntityChanges(JObject jsonObject, AuditAction action, string entityPath = "")
         {
             var entityChanges = new List<EntityChange>();
+
+            if (action == AuditAction.Delete) return entityChanges; //returns empty list
 
             foreach (var jop in jsonObject.Properties())
             {
