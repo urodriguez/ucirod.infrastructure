@@ -100,15 +100,13 @@ namespace Auditing.Controllers
         {
             var entityChanges = new List<EntityChange>();
 
-            if (action == AuditAction.Delete) return entityChanges; //returns empty list
-
             foreach (var jop in jsonObject.Properties())
             {
                 switch (jop.Value.Type)
                 {
-                    case JTokenType.Object: //recursive call
+                    case JTokenType.Object: //object types are processing in the same way for Create, Update, Delete
                     {
-                        var nestedObject = JsonConvert.DeserializeObject<JObject>(jop.Value.ToString());
+                        var nestedObject = (JObject)jop.Value;
                         var nestedEntityPath = entityPath == "" 
                             ? $"{jop.Path.Split(".").Last()}." 
                             : $"{entityPath}{jop.Path.Split(".").Last()}.";
@@ -117,8 +115,8 @@ namespace Auditing.Controllers
                         break;
                     }                    
                     
-                    case JTokenType.Array:
-                    {
+                    case JTokenType.Array: //array types are processing differently based on Create, Update, Delete
+                        {
                         switch (action)
                         {
                             case AuditAction.Create:
@@ -127,27 +125,130 @@ namespace Auditing.Controllers
                                     var nestedEntityPath = entityPath == "" 
                                         ? $"{arrayItemJsonObject.Path.Split(".").Last()}." 
                                         : $"{entityPath}{arrayItemJsonObject.Path.Split(".").Last()}.";
+                                    nestedEntityPath = nestedEntityPath.Replace("[", ".").Replace("]", "");
                                     entityChanges.AddRange(GetEntityChanges((JObject)arrayItemJsonObject, AuditAction.Create, nestedEntityPath));
                                 }
+
                                 break;
 
-                            case AuditAction.Update:
-                                entityChanges.Add(new EntityChange
+                            case AuditAction.Update: //updates are received as json array
+                                if (jop.Path.Contains("_")) //when new object is added on existing array
                                 {
-                                    Field = entityPath == "" ? jop.Path : $"{entityPath}{jop.Path}",
-                                    OldValue = JsonConvert.DeserializeObject<List<string>>(jop.Value.ToString()).Last(),
-                                    NewValue = JsonConvert.DeserializeObject<List<string>>(jop.Value.ToString()).First()
-                                });
+                                    var nestedEntityPath = entityPath == ""
+                                        ? $"{jop.Path.Replace("_", "").Split(".").Last()}."
+                                        : $"{entityPath}{jop.Path.Replace("_", "").Split(".").Last()}.";
+                                    entityChanges.AddRange(GetEntityChanges((JObject)jop.Value.First, AuditAction.Create, nestedEntityPath));
+                                }
+                                else
+                                {
+                                    if (((JArray)jop.Value).Count == 1) //when prop is removed from existing object
+                                    {
+                                        switch (jop.Value.First.Type)
+                                        {
+                                            case JTokenType.Object:
+                                            {
+                                                var nestedEntityPath = entityPath == ""
+                                                    ? $"{jop.Path.Split(".").Last()}."
+                                                    : $"{entityPath}{jop.Path.Split(".").Last()}.";
+                                                entityChanges.AddRange(GetEntityChanges((JObject)jop.Value.First, AuditAction.Delete, nestedEntityPath));
+                                                break;
+                                            }
 
+                                            case JTokenType.Array:
+                                            {
+                                                foreach (var arrayItemJsonObject in (JArray)jop.Value.First)
+                                                {
+                                                    var nestedArrayEntityPath = entityPath == ""
+                                                        ? $"{arrayItemJsonObject.Path.Split(".").Last()}."
+                                                        : $"{entityPath}{arrayItemJsonObject.Path.Split(".").Last()}.";
+                                                    var nestedArrayEntityPathElements = nestedArrayEntityPath.Replace("[", ".").Replace("]", "").Split(".").ToList();
+                                                    nestedArrayEntityPathElements.RemoveAt(1);
+                                                    nestedArrayEntityPath = string.Join(
+                                                        ".",
+                                                        nestedArrayEntityPathElements
+                                                    );
+                                                    entityChanges.AddRange(GetEntityChanges((JObject)arrayItemJsonObject, AuditAction.Delete, nestedArrayEntityPath));
+                                                }
+                                                break;
+                                            }
+
+                                            default:
+                                            {
+                                                entityChanges.Add(new EntityChange
+                                                {
+                                                    Field = entityPath == "" ? jop.Path.Split(".").Last() : $"{entityPath}{jop.Path.Split(".").Last()}",
+                                                    OldValue = jop.Value.First.ToString(),
+                                                    NewValue = "undefined"
+                                                });
+                                                break;
+                                            }
+
+                                        }
+                                    }                                    
+                                    
+                                    if (((JArray)jop.Value).Count == 2) //when existing object is updated on existing object
+                                    {
+                                        entityChanges.Add(new EntityChange
+                                        {
+                                            Field = entityPath == "" ? jop.Path.Split(".").Last() : $"{entityPath}{jop.Path.Split(".").Last()}",
+                                            OldValue = ((JArray)jop.Value).Last.ToString(),
+                                            NewValue = ((JArray)jop.Value).First.ToString()
+                                        });
+                                    }
+
+                                    if (((JArray)jop.Value).Count == 3) //when new prop is added on existing object
+                                    {
+                                        switch (jop.Value.First.Type)
+                                        {
+                                            case JTokenType.Object:
+                                            {
+                                                var nestedEntityPath = entityPath == ""
+                                                    ? $"{jop.Path.Split(".").Last()}."
+                                                    : $"{entityPath}{jop.Path.Split(".").Last()}.";
+                                                entityChanges.AddRange(GetEntityChanges((JObject)jop.Value.First, AuditAction.Create, nestedEntityPath));
+                                                break;
+                                            }
+
+                                            case JTokenType.Array:
+                                            {
+                                                foreach (var arrayItemJsonObject in (JArray)jop.Value.First)
+                                                {
+                                                    var nestedArrayEntityPath = entityPath == ""
+                                                        ? $"{arrayItemJsonObject.Path.Split(".").Last()}."
+                                                        : $"{entityPath}{arrayItemJsonObject.Path.Split(".").Last()}.";
+                                                    var nestedArrayEntityPathElements = nestedArrayEntityPath.Replace("[", ".").Replace("]", "").Split(".").ToList();
+                                                    nestedArrayEntityPathElements.RemoveAt(1);
+                                                    nestedArrayEntityPath = string.Join(
+                                                        ".",
+                                                        nestedArrayEntityPathElements
+                                                    );
+                                                    entityChanges.AddRange(GetEntityChanges((JObject)arrayItemJsonObject, AuditAction.Create, nestedArrayEntityPath));
+                                                }
+                                                break;
+                                            }
+
+                                            default:
+                                            {
+                                                entityChanges.Add(new EntityChange
+                                                {
+                                                    Field = entityPath == "" ? jop.Path.Split(".").Last() : $"{entityPath}{jop.Path.Split(".").Last()}",
+                                                    OldValue = "undefined",
+                                                    NewValue = jop.Value.First.ToString()
+                                                });
+                                                break;
+                                            }
+                                        }
+                                    }
+                                }
                                 break;
                         }
 
                         break;
                     }
 
-                    default: //create case
-                    {
-                        if (jop.Path.Equals("_t") && jop.Value.ToString().Equals("a")) continue;//ignore internal field from JsonDiffPatch framework
+                    default: //Plain types (strings, numbers, boolean - no nested object/array) - plain types are processing in the same way for Create, Update, Delete
+                        {
+                        if (jop.Path.Contains("_t") && jop.Value.ToString().Equals("a")) continue;//ignore internal field from JsonDiffPatch framework
 
                         string field;
                         if (jop.Path.Contains("[") && jop.Path.Contains("]."))
@@ -158,8 +259,8 @@ namespace Auditing.Controllers
                         entityChanges.Add(new EntityChange
                         {
                             Field = field,
-                            OldValue = "undefined",
-                            NewValue = jop.Value.ToString()
+                            OldValue = action == AuditAction.Create ? "undefined" : jop.Value.ToString(), //OldValue = "undefined" on Create
+                            NewValue = action == AuditAction.Create ? jop.Value.ToString() : "undefined"  //NewValue = "undefined" on Delete
                         });
 
                         break;
@@ -191,7 +292,7 @@ namespace Auditing.Controllers
 
                     var nestedEntityChanges = entityChanges.Where(
                         ec => ecp.Type == EntityChangePropertyType.NestedObject 
-                            ? ec.Field.Contains($"{ecp.Name}.") 
+                            ? ec.Field.Split(".").First().Contains($"{ecp.Name}") 
                             : ec.Field.Split(".").First().Contains($"{ecp.Name}[")
                     ).Select(
                         ec =>
