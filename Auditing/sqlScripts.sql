@@ -1,11 +1,23 @@
-IF COL_LENGTH('dbo.[Audit]', 'Entity') IS NULL
-	alter table audit add Entity varchar(max)
-GO
+DECLARE @isDevEnv bit = 1
 
-IF COL_LENGTH('dbo.[Audit]', 'EntityId') IS NULL
-	alter table audit add EntityId varchar(64)
-GO
+IF @isDevEnv = 1
+	USE [UciRod.Infrastructure.Auditing]
+ELSE
+	USE [UciRod.Infrastructure.Auditing-Test]
 
-IF COL_LENGTH('dbo.[Audit]', 'Environment') IS NULL
-	alter table audit add Environment varchar(16)
-GO
+SET ANSI_NULLS ON
+SET QUOTED_IDENTIFIER ON
+
+IF NOT EXISTS(SELECT 1 FROM sys.tables WHERE name = 'Audit')
+	CREATE TABLE [dbo].[Audit](
+		[Id] uniqueidentifier NOT NULL,
+		[Application] varchar(64) NOT NULL,
+		[User] varchar(64) NOT NULL,
+		[Changes] varchar(max) NOT NULL,
+		[EntityName] varchar(64) NOT NULL,
+		[Action] int NOT NULL,
+		[CreationDate] smalldatetime NOT NULL,
+		[Entity] varchar(max) NULL,
+		[EntityId] varchar(64) NULL,
+		[Environment] varchar(16) NULL
+	)
