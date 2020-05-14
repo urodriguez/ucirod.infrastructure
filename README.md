@@ -63,3 +63,4 @@ http://www.ucirod.infrastructure-test.com:40000/authentication
 * Auditing: test on TEST env + fix bugs
 * Auditing: feature to add/remove elements on object/array
 * Jenkins: add sql script to build process
+* expose infrastructure services to external (no localhost) URL via public ip for TEST env
