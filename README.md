@@ -1,30 +1,36 @@
 # Infrastructure Project
 Infrastructure solutions for UciRod
 
-# Infrastructure URL - ENV
-http://localhost:8082 -> Jenkins
+# UciRod - CI/CD - Jenkins - ip: 127.0.0.1 - www.ucirod.jenkins.com mapped in C:\Windows\System32\drivers\etc\hosts
+http://www.ucirod.jenkins.com:8082 | user: ucirod, password: ucirod
 
-http://www.ucirod.infrastructure-test.com:40000 -> Test (IIS Local - overwritten in C:\Windows\System32\drivers\etc\hosts)
+## Base URL - ENV - ip: 192.168.0.239 (internal private ip) - IIS - www.ucirod.infrastructure-test.com mapped in C:\Windows\System32\drivers\etc\hosts
+www.ucirod.infrastructure-test.com:8081
 
-## Logging URL - ENV
+## Logging - ENV
 https://localhost:44330 -> Dev (IIS Express - https)
 https://localhost:44330/hangfire
-http://www.ucirod.infrastructure-test.com:40000/logging
-http://www.ucirod.infrastructure-test.com:40000/logging/hangfire
+http://www.ucirod.infrastructure-test.com:8081/logging
+http://www.ucirod.infrastructure-test.com:8081/logging/hangfire
 
-## Auditing URL - ENV
+## Auditing - ENV
 https://localhost:44387 -> Dev (IIS Express - https)
-http://www.ucirod.infrastructure-test.com:40000/auditing
+http://www.ucirod.infrastructure-test.com:8081/auditing
 
-## Mailing URL - ENV
-https://localhost:44386/ -> Dev (IIS Express - https)
-http://www.ucirod.infrastructure-test.com:40000/mailing
+## Mailing - ENV
+https://localhost:44386 -> Dev (IIS Express - https)
+http://www.ucirod.infrastructure-test.com:8081/mailing
 
-## Authentication URL - ENV
+## Authentication - ENV
 https://localhost:44315 -> Dev (IIS Express - https)
-http://www.ucirod.infrastructure-test.com:40000/authentication
+http://www.ucirod.infrastructure-test.com:8081/authentication
+
+## Reporting - ENV
+https://localhost:44341 -> Dev (IIS Express - https)
+http://www.ucirod.infrastructure-test.com:8081/reporting
 
 ## TODO list
+* refactor AppSettingsService
 * API Gateway
 * create client application (React)
   * user register -> receive email
@@ -64,3 +70,4 @@ http://www.ucirod.infrastructure-test.com:40000/authentication
 * Auditing: feature to add/remove elements on object/array
 * Jenkins: add sql script to build process
 * expose infrastructure services to external (no localhost) URL via public ip for TEST env
+* organize readme by ENV
