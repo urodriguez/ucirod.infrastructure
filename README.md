@@ -11,7 +11,7 @@ www.ucirod.infrastructure-test.com:8081
 https://localhost:44330 -> Dev (IIS Express - https)
 https://localhost:44330/hangfire
 http://www.ucirod.infrastructure-test.com:8081/logging
-http://www.ucirod.infrastructure-test.com:8081/logging/hangfire
+http://127.0.0.1:8081/logging/hangfire -> only allow local request (dashboard visible only on TEST server), allow external request on TODO list
 
 ## Auditing - ENV
 https://localhost:44387 -> Dev (IIS Express - https)
@@ -31,7 +31,7 @@ http://www.ucirod.infrastructure-test.com:8081/reporting
 
 ## TODO list
 * refactor AppSettingsService
-* API Gateway
+* expose hangfire dashboard to allow external request - https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization
 * create client application (React)
   * user register -> receive email
   * user login
@@ -40,6 +40,7 @@ http://www.ucirod.infrastructure-test.com:8081/reporting
   * user pay -> credit card transactions?
   * logs module
 * Authentication: implement refresh token
+* API Gateway
 * deploy app to cloud - PROD env
 * enqueue failed data
 * dequeue failed data and resend

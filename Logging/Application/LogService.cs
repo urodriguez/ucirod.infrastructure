@@ -153,7 +153,9 @@ namespace Logging.Application
                 
                 foreach (var fileSystemLogsDirectory in Directory.GetDirectories(_appSettingsService.FileSystemLogsDirectory))
                 {
-                    var directoryInfo = new DirectoryInfo(fileSystemLogsDirectory);
+                    var directoryInfo = new DirectoryInfo(fileSystemLogsDirectory); 
+                    InternalLogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Processing directory | directory.Name={directoryInfo.Name}");
+
                     var filesToDelete = directoryInfo.GetFiles("*.txt").Where(f => f.CreationTime < DateTime.Today.AddDays(-7));
                     var filesDeleted = 0;
                     foreach (var fileToDelete in filesToDelete)
@@ -164,9 +166,9 @@ namespace Logging.Application
 
                     InternalLogInfoMessage(
                         filesToDelete.Count() != filesDeleted ?
-                            $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=INCOMPLED - fileSystemLogsDirectory={fileSystemLogsDirectory} - filesToDelete={filesToDelete.Count()} - filesDeleted={filesDeleted}"
+                            $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Directory processed | status=INCOMPLED - directory.Name={directoryInfo.Name} - fileSystemLogsDirectory={fileSystemLogsDirectory} - filesToDelete={filesToDelete.Count()} - filesDeleted={filesDeleted}"
                             :
-                            $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS | status=FINISHED - fileSystemLogsDirectory={fileSystemLogsDirectory} - filesToDelete={filesToDelete.Count()} - filesDeleted={filesDeleted}"
+                            $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Directory processed | status=FINISHED - directory.Name={directoryInfo.Name} - fileSystemLogsDirectory={fileSystemLogsDirectory} - filesToDelete={filesToDelete.Count()} - filesDeleted={filesDeleted}"
                     );
                 }
             }
