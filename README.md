@@ -30,7 +30,6 @@ https://localhost:44341 -> Dev (IIS Express - https)
 http://www.ucirod.infrastructure-test.com:8081/reporting
 
 ## TODO list
-* refactor AppSettingsService
 * expose hangfire dashboard to allow external request - https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization
 * create client application (React)
   * user register -> receive email
@@ -72,3 +71,4 @@ http://www.ucirod.infrastructure-test.com:8081/reporting
 * Jenkins: add sql script to build process
 * expose infrastructure services to external (no localhost) URL via public ip for TEST env
 * organize readme by ENV
+* refactor AppSettingsService
