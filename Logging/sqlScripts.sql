@@ -8,6 +8,8 @@ ELSE
 SET ANSI_NULLS ON
 SET QUOTED_IDENTIFIER ON
 
+BEGIN TRANSACTION
+
 IF NOT EXISTS(SELECT 1 FROM sys.tables WHERE name = 'Log')
 	CREATE TABLE [dbo].[Log](
 		[Id] uniqueidentifier NOT NULL,
@@ -30,3 +32,5 @@ begin
 	IF DB_ID('UciRod.Infrastructure.Logging.Hangfire-Test') IS NULL 
 		CREATE DATABASE [UciRod.Infrastructure.Logging.Hangfire-Test]
 end
+
+COMMIT TRANSACTION

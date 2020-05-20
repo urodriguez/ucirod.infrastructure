@@ -8,6 +8,8 @@ ELSE
 SET ANSI_NULLS ON
 SET QUOTED_IDENTIFIER ON
 
+BEGIN TRANSACTION
+
 IF NOT EXISTS(SELECT 1 FROM sys.tables WHERE name = 'Audit')
 	CREATE TABLE [dbo].[Audit](
 		[Id] uniqueidentifier NOT NULL,
@@ -21,3 +23,5 @@ IF NOT EXISTS(SELECT 1 FROM sys.tables WHERE name = 'Audit')
 		[EntityId] varchar(64) NULL,
 		[Environment] varchar(16) NULL
 	)
+
+COMMIT TRANSACTION
