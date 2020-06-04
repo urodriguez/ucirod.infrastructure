@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Auditing.Domain;
 using Auditing.Dtos;
 using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Shared.Infrastructure.CrossCutting.Authentication;
 using Shared.Infrastructure.CrossCutting.Logging;
@@ -26,9 +28,9 @@ namespace Auditing.Controllers
         }
 
         [HttpPost]
-        public IActionResult Search([FromBody] AuditSearchRequestDto auditSearchRequestDto)
+        public async Task<IActionResult> SearchAsync([FromBody] AuditSearchRequestDto auditSearchRequestDto)
         {
-            return Execute(auditSearchRequestDto.Credential, () =>
+            return await ExecuteAsync(auditSearchRequestDto.Credential, async () =>
             {
                 var page = auditSearchRequestDto.Page.Value;
                 var pageSize = auditSearchRequestDto.PageSize.Value;
@@ -37,7 +39,7 @@ namespace Auditing.Controllers
                 var sinceDate = auditSearchRequestDto.SinceDate;
                 var toDate = auditSearchRequestDto.ToDate;
 
-                _logService.LogInfoMessage($"AuditController.Get | INPUT | page={page} - pageSize={pageSize} - sortBy={sortBy} - sortOrder={sortOrder} - sinceDate={sinceDate} - toDate={toDate}");
+                _logService.LogInfoMessageAsync($"AuditController.Get | INPUT | page={page} - pageSize={pageSize} - sortBy={sortBy} - sortOrder={sortOrder} - sinceDate={sinceDate} - toDate={toDate}");
 
                 if (sortOrder != "asc" && sortOrder != "desc") throw new ArgumentOutOfRangeException($"Invalid sortOrder = {sortBy} parameter. Only 'asc' and 'desc' are allowed");
 
@@ -57,7 +59,7 @@ namespace Auditing.Controllers
                     var toDateAtEnd = toDate.Value.AddHours(23).AddMinutes(59).AddSeconds(59);
                     searchedAudits = _auditingDbContext.Audits.Where(pl => sinceDate == null && toDate != null ? pl.CreationDate <= toDateAtEnd : sinceDate <= pl.CreationDate);
                 }
-                _logService.LogInfoMessage($"AuditController.Get | Searching done");
+                _logService.LogInfoMessageAsync($"AuditController.Get | Searching done");
 
                 IQueryable<Audit> sortedAudits;
                 switch (sortBy)
@@ -78,18 +80,18 @@ namespace Auditing.Controllers
                     default:
                         throw new ArgumentOutOfRangeException($"Invalid sortBy = {sortBy} parameter");
                 }
-                _logService.LogInfoMessage($"AuditController.Get | Sorting done");
+                _logService.LogInfoMessageAsync($"AuditController.Get | Sorting done");
 
                 var pagedAudits = sortedAudits.Skip(page * pageSize).Take(pageSize);
-                _logService.LogInfoMessage($"AuditController.Get | Paging done");
+                _logService.LogInfoMessageAsync($"AuditController.Get | Paging done");
 
-                return Ok(pagedAudits.Select(pa => new AuditSearchResponseDto
+                return Ok(await pagedAudits.Select(pa => new AuditSearchResponseDto
                 {
                     User = pa.User,
                     Changes = JsonConvert.DeserializeObject<IEnumerable<EntityChange>>(pa.Changes),
                     Action = pa.Action,
                     CreationDate = pa.CreationDate
-                }).ToList());
+                }).ToListAsync());
             });
         }
     }

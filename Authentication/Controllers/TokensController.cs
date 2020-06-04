@@ -43,12 +43,15 @@ namespace Authentication.Controllers
                     Subject = claimsIdentity,
                     NotBefore = DateTime.UtcNow,
                     Expires = DateTime.UtcNow.AddMinutes(Convert.ToInt32(tokenCreateDto.Expires ?? UciRodToken.Expires)),
-                    SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.Default.GetBytes(tokenCreateDto.Credential.SecretKey)), SecurityAlgorithms.HmacSha256Signature)
+                    SigningCredentials = new SigningCredentials(
+                        new SymmetricSecurityKey(Encoding.Default.GetBytes(tokenCreateDto.Credential.SecretKey)), 
+                        SecurityAlgorithms.HmacSha256Signature
+                    )
                 };
 
                 // create JWT security token based on descriptor
                 var jwtSecurityToken = tokenHandler.CreateJwtSecurityToken(securityTokenDescriptor);
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token created successfully | credential.Id={tokenCreateDto.Credential.Id}");
+                _logService.LogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token created successfully | credential.Id={tokenCreateDto.Credential.Id}");
 
                 return Ok(new
                 {
@@ -80,12 +83,12 @@ namespace Authentication.Controllers
                     };
 
                     var identity = tokenHandler.ValidateToken(tokenValidateDto.SecurityToken, validationParameters, out var validatedToken);
-                    _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | credential.Id={tokenValidateDto.Credential.Id}");
+                    _logService.LogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | JWT security token validated successfully | credential.Id={tokenValidateDto.Credential.Id}");
 
                     var internalClaimTypes = new[] { "nbf", "exp", "iat", "iss" };
 
                     var claims = identity.Claims.Where(c => !internalClaimTypes.Contains(c.Type));
-                    _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | credential.Id={tokenValidateDto.Credential.Id} - claims.Count={claims.Count()}");
+                    _logService.LogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | credential.Id={tokenValidateDto.Credential.Id} - claims.Count={claims.Count()}");
 
                     return Ok(new
                     {
@@ -99,7 +102,7 @@ namespace Authentication.Controllers
                 }
                 catch (SecurityTokenInvalidLifetimeException stile)
                 {
-                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | credential.Id={tokenValidateDto.Credential.Id}");
+                    _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | credential.Id={tokenValidateDto.Credential.Id}");
                     return Ok(new
                     {
                         TokenStatus = TokenStatus.Expired
@@ -107,7 +110,7 @@ namespace Authentication.Controllers
                 }
                 catch (Exception e)//overrides generic Exception catching to catch exceptions from: tokenHandler.ValidateToken
                 {
-                    _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | credential.Id={tokenValidateDto.Credential.Id} - fullStackTrace={e}");
+                    _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | Exception | credential.Id={tokenValidateDto.Credential.Id} - fullStackTrace={e}");
                     return Ok(new
                     {
                         TokenStatus = TokenStatus.Invalid

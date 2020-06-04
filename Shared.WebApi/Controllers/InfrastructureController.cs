@@ -38,53 +38,53 @@ namespace Shared.WebApi.Controllers
 
                 var controllerPipelineResult = controllerPipeline.Invoke();
 
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Service Execution Succeed");
+                _logService.LogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Service Execution Succeed");
 
                 return controllerPipelineResult;
             }
             catch (AuthenticationFailException afe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | AuthenticationFailException");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | AuthenticationFailException");
                 return Unauthorized();
             }
             catch (UnauthorizedAccessException uae)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | UnauthorizedAccessException | e.Message={uae.Message} - e.StackTrace={uae}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | UnauthorizedAccessException | e.Message={uae.Message} - e.StackTrace={uae}");
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
             catch (EntryNotFoundException enfe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | EntryNotFoundException | e.Message={enfe.Message} - e.StackTrace={enfe}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | EntryNotFoundException | e.Message={enfe.Message} - e.StackTrace={enfe}");
                 return NotFound();
             }
             catch (ArgumentNullException ide)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentNullException | e.Message={ide.Message} - e.StackTrace={ide}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentNullException | e.Message={ide.Message} - e.StackTrace={ide}");
                 return BadRequest(ide.Message);
             }
             catch (ArgumentOutOfRangeException aore)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentOutOfRangeException | e.Message={aore.Message} - e.StackTrace={aore}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentOutOfRangeException | e.Message={aore.Message} - e.StackTrace={aore}");
                 return BadRequest(aore.Message);
             }            
             catch (InvalidOperationException ioe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InvalidOperationException | e.Message={ioe.Message} - e.StackTrace={ioe}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InvalidOperationException | e.Message={ioe.Message} - e.StackTrace={ioe}");
                 return BadRequest(ioe.Message);
             }            
             catch (KeyNotFoundException knfe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | KeyNotFoundException | e.Message={knfe.Message} - e.StackTrace={knfe}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | KeyNotFoundException | e.Message={knfe.Message} - e.StackTrace={knfe}");
                 return BadRequest(knfe.Message);
             }            
             catch (FormatException fe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | FormatException | e.Message={fe.Message} - e.StackTrace={fe}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | FormatException | e.Message={fe.Message} - e.StackTrace={fe}");
                 return BadRequest(fe.Message);
             }
             catch (InternalServerException ise)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e={ise}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e={ise}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError, 
                     $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
@@ -92,7 +92,7 @@ namespace Shared.WebApi.Controllers
             }
             catch (Exception e)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Exception | e={e}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Exception | e={e}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError, 
                     $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
@@ -112,53 +112,53 @@ namespace Shared.WebApi.Controllers
 
                 var controllerPipelineResult = await controllerPipeline.Invoke();
 
-                _logService.LogInfoMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Service Execution Succeed");
+                _logService.LogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Service Execution Succeed");
 
                 return controllerPipelineResult;
             }
             catch (AuthenticationFailException afe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | AuthenticationFailException");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | AuthenticationFailException");
                 return Unauthorized();
             }
             catch (UnauthorizedAccessException uae)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | UnauthorizedAccessException | e.Message={uae.Message} - e.StackTrace={uae}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | UnauthorizedAccessException | e.Message={uae.Message} - e.StackTrace={uae}");
                 return StatusCode(StatusCodes.Status403Forbidden);
             }
             catch (EntryNotFoundException enfe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | EntryNotFoundException | e.Message={enfe.Message} - e.StackTrace={enfe}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | EntryNotFoundException | e.Message={enfe.Message} - e.StackTrace={enfe}");
                 return NotFound();
             }
             catch (ArgumentNullException ide)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentNullException | e.Message={ide.Message} - e.StackTrace={ide}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentNullException | e.Message={ide.Message} - e.StackTrace={ide}");
                 return BadRequest(ide.Message);
             }
             catch (ArgumentOutOfRangeException aore)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentOutOfRangeException | e.Message={aore.Message} - e.StackTrace={aore}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | ArgumentOutOfRangeException | e.Message={aore.Message} - e.StackTrace={aore}");
                 return BadRequest(aore.Message);
             }
             catch (InvalidOperationException ioe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InvalidOperationException | e.Message={ioe.Message} - e.StackTrace={ioe}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InvalidOperationException | e.Message={ioe.Message} - e.StackTrace={ioe}");
                 return BadRequest(ioe.Message);
             }
             catch (KeyNotFoundException knfe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | KeyNotFoundException | e.Message={knfe.Message} - e.StackTrace={knfe}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | KeyNotFoundException | e.Message={knfe.Message} - e.StackTrace={knfe}");
                 return BadRequest(knfe.Message);
             }
             catch (FormatException fe)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | FormatException | e.Message={fe.Message} - e.StackTrace={fe}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | FormatException | e.Message={fe.Message} - e.StackTrace={fe}");
                 return BadRequest(fe.Message);
             }
             catch (InternalServerException ise)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e={ise}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | InternalServerException | e={ise}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
                     $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"
@@ -166,7 +166,7 @@ namespace Shared.WebApi.Controllers
             }
             catch (Exception e)
             {
-                _logService.LogErrorMessage($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Exception | e={e}");
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Exception | e={e}");
                 return StatusCode(
                     StatusCodes.Status500InternalServerError,
                     $"An Internal Server Error has ocurred. Please contact with your administrator. CorrelationId = {_logService.GetCorrelationId()}"

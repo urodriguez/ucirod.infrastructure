@@ -1,4 +1,5 @@
-﻿using Logging.Application;
+﻿using System.Threading.Tasks;
+using Logging.Application;
 using Logging.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +12,11 @@ namespace Logging.Controllers
         }
 
         [HttpPost]
-        public IActionResult Post([FromBody] LogDtoPost logDto)
+        public async Task<IActionResult> PostAsync([FromBody] LogDtoPost logDto)
         {
-            return Execute(() =>
+            return await ExecuteAsync(async () =>
             {
-                _logService.Log(logDto);
+                await _logService.LogAsync(logDto);
                 return Ok();
             });
         }

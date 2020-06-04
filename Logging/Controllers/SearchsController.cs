@@ -1,4 +1,5 @@
-﻿using Logging.Application;
+﻿using System.Threading.Tasks;
+using Logging.Application;
 using Logging.Application.Dtos;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,11 +12,11 @@ namespace Logging.Controllers
         }
 
         [HttpPost]
-        public IActionResult Search([FromBody] LogSearchRequestDto logSearchRequestDto)
+        public async Task<IActionResult> SearchAsync([FromBody] LogSearchRequestDto logSearchRequestDto)
         {
-            return Execute(() =>
+            return await ExecuteAsync(async () =>
             {
-                var logs = _logService.Search(logSearchRequestDto);
+                var logs = await _logService.SearchAsync(logSearchRequestDto);
 
                 return Ok(logs);
             });

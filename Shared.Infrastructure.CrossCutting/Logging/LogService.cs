@@ -28,28 +28,29 @@ namespace Shared.Infrastructure.CrossCutting.Logging
         public string GetCorrelationId() => _correlationId;
 
         //Very detailed logs, which may include high-volume information such as protocol payloads. This log level is typically only enabled during development
-        public void LogTraceMessage(string messageToLog)
+        public void LogTraceMessageAsync(string messageToLog)
         {
-            LogMessage(messageToLog, LogType.Trace);
+            LogMessageAsync(messageToLog, LogType.Trace);
         }
 
         //Information messages, which are normally enabled in production environment
-        public void LogInfoMessage(string messageToLog)
+        public void LogInfoMessageAsync(string messageToLog)
         {
-            LogMessage(messageToLog, LogType.Info);
+            LogMessageAsync(messageToLog, LogType.Info);
         }
 
         //Error messages - most of the time these are Exceptions
-        public void LogErrorMessage(string messageToLog)
+        public void LogErrorMessageAsync(string messageToLog)
         {
-            LogMessage(messageToLog, LogType.Error);
+            LogMessageAsync(messageToLog, LogType.Error);
         }
 
-        private void LogMessage(string messageToLog, LogType logType)
+        private void LogMessageAsync(string messageToLog, LogType logType)
         {
-            if (string.IsNullOrEmpty(_project)) throw new Exception("LogService was not configured correctly. Use 'UseProject' method to configure 'Project' field");
+            if (string.IsNullOrEmpty(_project)) 
+                throw new Exception("LogService was not configured correctly. Use 'UseProject' method to configure 'Project' field");
 
-            var task = new Task(() =>
+            Task.Run(() =>
             {
                 try
                 {
@@ -67,11 +68,14 @@ namespace Shared.Infrastructure.CrossCutting.Logging
                     };
                     request.AddJsonBody(log);
 
-                    var logResponse = _restClient.Post(request);
+                    var response = _restClient.Execute(request);
 
-                    if (!logResponse.IsSuccessful)
+                    //if (response.StatusCode == HttpStatusCode.NotFound || response.StatusCode == HttpStatusCode.ServiceUnavailable) TODO
+                    //    Enqueue(queueable, childServiceName, childMethodName); 
+
+                    if (!response.IsSuccessful)
                         throw new Exception(
-                            $"logResponse.IsSuccessful=false - logResponse.StatusCode={logResponse.StatusCode} - logResponse.Content={logResponse.Content}"
+                            $"response.IsSuccessful=false - response.StatusCode={response.StatusCode} - response.Content={response.Content}"
                         );
                 }
                 catch (Exception e)
@@ -79,13 +83,12 @@ namespace Shared.Infrastructure.CrossCutting.Logging
                     //Do not call LogService to log this exception in order to avoid infinite loop
                     FileSystemLog($"{e}");
 
-                    //queue 'log' data
+                    //if (queueable != null) TODO
+                    //    Enqueue(queueable, childServiceName, childMethodName);
 
                     //do not throw the exception in order to avoid finish the main request
                 }
             });
-
-            task.Start();
         }
 
         private void FileSystemLog(string messageToLog)

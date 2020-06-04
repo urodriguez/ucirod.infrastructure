@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Auditing.Domain;
 using Auditing.Dtos;
 using Auditing.Infrastructure.CrossCutting;
 using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Shared.Infrastructure.CrossCutting.Authentication;
 using Shared.Infrastructure.CrossCutting.Logging;
@@ -31,19 +32,19 @@ namespace Auditing.Controllers
         }
 
         [HttpPost]
-        public IActionResult Audit([FromBody] AuditDtoPost auditDto)
+        public async Task<IActionResult> AuditAsync([FromBody] AuditDtoPost auditDto)
         {
-            return Execute(auditDto.Credential, () =>
+            return await ExecuteAsync(auditDto.Credential, async () =>
             {
                 var audit = new Audit(auditDto.Application, auditDto.Environment, auditDto.User, auditDto.EntityId, auditDto.EntityName, auditDto.Entity, auditDto.Action);
 
-                _logService.LogInfoMessage($"AuditController.Audit | Audit entity ready | entity={audit.EntityName} - entityId={audit.EntityId} - application={audit.Application} - user={audit.User} - action={audit.Action}");
+                _logService.LogInfoMessageAsync($"AuditController.Audit | Audit entity ready | entity={audit.EntityName} - entityId={audit.EntityId} - application={audit.Application} - user={audit.User} - action={audit.Action}");
 
-                var previousAudit = _auditingDbContext.Audits.Where(
+                var previousAudit = await _auditingDbContext.Audits.Where(
                     a => a.EntityId == audit.EntityId && a.EntityName == audit.EntityName && a.Environment == audit.Environment && a.Application == audit.Application
                 ).OrderByDescending(
                     a => a.CreationDate
-                ).FirstOrDefault();
+                ).FirstOrDefaultAsync();
 
                 audit.CheckIfCanBeAudited(previousAudit);
 
@@ -51,16 +52,16 @@ namespace Auditing.Controllers
 
                 if (entityChanges == null)
                 {
-                    _logService.LogInfoMessage($"AuditController.Audit | No changes were detected | audit.EntityId={audit.EntityId}");
+                    _logService.LogInfoMessageAsync($"AuditController.Audit | No changes were detected | audit.EntityId={audit.EntityId}");
                     return Ok();
                 }
 
                 audit.SetChanges(entityChanges.ToString());
 
                 _auditingDbContext.Audits.Add(audit);
-                _auditingDbContext.SaveChanges();
+                await _auditingDbContext.SaveChangesAsync();
 
-                _logService.LogInfoMessage($"AuditController.Audit | Audit registry saved | audit.Id={audit.Id} - audit.EntityId={audit.EntityId}");
+                _logService.LogInfoMessageAsync($"AuditController.Audit | Audit registry saved | audit.Id={audit.Id} - audit.EntityId={audit.EntityId}");
 
                 return Ok();
             });

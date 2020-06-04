@@ -45,7 +45,7 @@ namespace Reporting.Controllers
             {
                 var report = new Domain.Report(reportDto.Template, reportDto.Data);
 
-                _logService.LogInfoMessage($"{GetType().Name}.{methodName}  | Redering report | credential.Id={reportDto.Credential.Id} - status=PENDING");
+                _logService.LogInfoMessageAsync($"{GetType().Name}.{methodName}  | Redering report | credential.Id={reportDto.Credential.Id} - status=PENDING");
                 var reportRendered = await _jsReportMvcService.RenderAsync(new RenderRequest
                 {
                     Template = new Template
@@ -56,13 +56,13 @@ namespace Reporting.Controllers
                     },
                     Data = report.Data
                 });
-                _logService.LogInfoMessage($"{GetType().Name}.{methodName}  | Redering report | credential.Id={reportDto.Credential.Id} - status=FINISHED");
+                _logService.LogInfoMessageAsync($"{GetType().Name}.{methodName}  | Redering report | credential.Id={reportDto.Credential.Id} - status=FINISHED");
 
                 Directory.CreateDirectory($"{_appSettingsService.ReportsDirectory}");
 
                 var reportFileName = $"report_{reportDto.Credential.Id}_{Guid.NewGuid()}.pdf";
 
-                _logService.LogInfoMessage($"{GetType().Name}.{methodName}  | Creating report file | credential.Id={reportDto.Credential.Id} - reportFileName={reportFileName}");
+                _logService.LogInfoMessageAsync($"{GetType().Name}.{methodName}  | Creating report file | credential.Id={reportDto.Credential.Id} - reportFileName={reportFileName}");
 
                 using (var f = System.IO.File.Create($"{_appSettingsService.ReportsDirectory}\\{reportFileName}"))
                 {

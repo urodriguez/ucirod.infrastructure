@@ -30,6 +30,7 @@ https://localhost:44341 -> Dev (IIS Express - https)
 http://www.ucirod.infrastructure-test.com:8081/reporting
 
 ## TODO list
+* handle massive logs rows on Log table
 * expose hangfire dashboard to allow external request - https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization
 * create client application (React)
   * user register -> receive email
@@ -72,3 +73,4 @@ http://www.ucirod.infrastructure-test.com:8081/reporting
 * expose infrastructure services to external (no localhost) URL via public ip for TEST env
 * organize readme by ENV
 * refactor AppSettingsService
+* make blocking methods (database, external webservices, I/O) async => spread to controllers, app services, repositories, etc
