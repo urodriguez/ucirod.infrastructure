@@ -71,14 +71,18 @@ namespace Logging
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
+                app.UseHangfireDashboard("/hangfire");
             }
             else
             {
                 app.UseHsts();
+                app.UseHangfireDashboard("/hangfire", new DashboardOptions
+                {
+                    Authorization = new[] { new LoggingHangfireDashboardAuthorizationFilter() }
+                });
             }
 
-            app.UseHangfireDashboard();
-            RecurringJob.AddOrUpdate("delete-old-logs", () => logService.DeleteOldLogs(), Cron.Daily);
+            RecurringJob.AddOrUpdate("delete-old-logs", () => logService.DeleteOldLogsAsync(), Cron.Daily);
 
             app.UseHttpsRedirection();
             app.UseMvc();

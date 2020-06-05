@@ -7,8 +7,9 @@ namespace Logging.Domain
     {
         public Log(string application, string project, string correlationId, string text, LogType type, string environment)
         {
-            if (string.IsNullOrEmpty(application)) throw new ArgumentNullException("'Application' is missing on Log object");
-            if (string.IsNullOrEmpty(environment)) throw new ArgumentNullException("'Environment' is missing on Log object");
+            if (string.IsNullOrEmpty(application)) throw new ArgumentNullException("'Application' can not be null or empty on Log object");
+            if (string.IsNullOrEmpty(environment)) throw new ArgumentNullException("'Environment' can not be null or empty on Log object");
+            if (string.IsNullOrEmpty(text)) throw new ArgumentNullException("'Text' can not be null or empty on Log object");
 
             if (!Enum.IsDefined(typeof(LogType), type))
             {
@@ -34,7 +35,5 @@ namespace Logging.Domain
         public LogType Type { get; set; }
         public string Environment { get; set; }
         public DateTime CreationDate { get; set; }
-
-        public bool HasTextToLog() => !string.IsNullOrEmpty(Text);
     }
 }

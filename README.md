@@ -11,7 +11,7 @@ www.ucirod.infrastructure-test.com:8081
 https://localhost:44330 -> Dev (IIS Express - https)
 https://localhost:44330/hangfire
 http://www.ucirod.infrastructure-test.com:8081/logging
-http://127.0.0.1:8081/logging/hangfire -> only allow local request (dashboard visible only on TEST server), allow external request on TODO list
+http://www.ucirod.infrastructure-test.com:8081/logging/hangfire -> use cookie = { Name = "infrastructure_hf_dashboard_cookie", Value = "1nfr45tructur3_h4ngf1r3_d45hb0rd" }
 
 ## Auditing - ENV
 https://localhost:44387 -> Dev (IIS Express - https)
@@ -30,8 +30,7 @@ https://localhost:44341 -> Dev (IIS Express - https)
 http://www.ucirod.infrastructure-test.com:8081/reporting
 
 ## TODO list
-* handle massive logs rows on Log table
-* expose hangfire dashboard to allow external request - https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization
+* create script to configure sites on IIS
 * create client application (React)
   * user register -> receive email
   * user login
@@ -40,6 +39,7 @@ http://www.ucirod.infrastructure-test.com:8081/reporting
   * user pay -> credit card transactions?
   * logs module
 * Authentication: implement refresh token
+* handle massive logs rows on Log table
 * API Gateway
 * deploy app to cloud - PROD env
 * enqueue failed data
@@ -74,3 +74,4 @@ http://www.ucirod.infrastructure-test.com:8081/reporting
 * organize readme by ENV
 * refactor AppSettingsService
 * make blocking methods (database, external webservices, I/O) async => spread to controllers, app services, repositories, etc
+* expose hangfire dashboard to allow external request - https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization

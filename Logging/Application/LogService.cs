@@ -46,8 +46,11 @@ namespace Logging.Application
             //this CorrelationId comes from outsite, it is not the same to "_internalCorrelationId"
             var log = new Log(logDto.Application, logDto.Project, logDto.CorrelationId, logDto.Text, logDto.Type, logDto.Environment);
 
-            if (!log.HasTextToLog()) return;
+            await InsertLogIntoDatabaseAsync(log);
+        }
 
+        private async Task InsertLogIntoDatabaseAsync(Log log)
+        {
             try
             {
                 _loggingDbContext.Logs.Add(log);
@@ -141,17 +144,17 @@ namespace Logging.Application
             return await pagedLogs.Select(pl => new LogSearchResponseDto(pl)).ToListAsync();
         }
 
-        public void DeleteOldLogs()
+        public async Task DeleteOldLogsAsync()
         {
             //Remove logs from db
             try
             {
-                InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From DB | status=PENDING");
+                await InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From DB | status=PENDING");
 
                 _loggingDbContext.Logs.RemoveRange(_loggingDbContext.Logs.Where(l => l.CreationDate < DateTime.Today.AddDays(-7)));
-                _loggingDbContext.SaveChanges();
+                await _loggingDbContext.SaveChangesAsync();
 
-                InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From DB | status=FINISHED");
+                await InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From DB | status=FINISHED");
             }
             catch (Exception e)
             {
@@ -161,12 +164,12 @@ namespace Logging.Application
             //Remove logs from file system
             try
             {
-                InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS");
+                await InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Deleting Old Logs From FS");
                 
                 foreach (var fileSystemLogsDirectory in Directory.GetDirectories(_appSettingsService.FileSystemLogsDirectory))
                 {
-                    var directoryInfo = new DirectoryInfo(fileSystemLogsDirectory); 
-                    InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Processing directory | directory.Name={directoryInfo.Name}");
+                    var directoryInfo = new DirectoryInfo(fileSystemLogsDirectory);
+                    await InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Processing directory | directory.Name={directoryInfo.Name}");
 
                     var filesToDelete = directoryInfo.GetFiles("*.txt").Where(f => f.CreationTime < DateTime.Today.AddDays(-7));
                     var filesDeleted = 0;
@@ -176,7 +179,7 @@ namespace Logging.Application
                         filesDeleted++;
                     }
 
-                    InternalLogInfoMessageAsync(
+                    await InternalLogInfoMessageAsync(
                         filesToDelete.Count() != filesDeleted ?
                             $"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Directory processed | status=INCOMPLED - directory.Name={directoryInfo.Name} - fileSystemLogsDirectory={fileSystemLogsDirectory} - filesToDelete={filesToDelete.Count()} - filesDeleted={filesDeleted}"
                             :
@@ -186,51 +189,32 @@ namespace Logging.Application
             }
             catch (Exception e)
             {
-                InternalLogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Logging FS Exception | e={e}");
+                await InternalLogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Logging FS Exception | e={e}");
             }
         }
 
         //Internal log for Logging in order to avoid infinite loop if Shared.Infrastructure.CrossCutting.Logging.LogService is called
         //Very detailed logs, which may include high-volume information such as protocol payloads. This log level is typically only enabled during development
-        public void InternalLogTraceMessageAsync(string messageToLog)
+        public async Task InternalLogTraceMessageAsync(string messageToLog)
         {
             var log = new Log("Infrasctructure", "Logging", _internalCorrelationId, messageToLog, LogType.Trace, _appSettingsService.Environment.Name);
-            InternalLogAsync(log);
+            await InsertLogIntoDatabaseAsync(log);
         }
 
         //Internal log for Logging in order to avoid infinite loop if Shared.Infrastructure.CrossCutting.Logging.LogService is called
         //Information messages, which are normally enabled in production environment
-        public void InternalLogInfoMessageAsync(string messageToLog)
+        public async Task InternalLogInfoMessageAsync(string messageToLog)
         {
             var log = new Log("Infrasctructure", "Logging", _internalCorrelationId, messageToLog, LogType.Info, _appSettingsService.Environment.Name);
-            InternalLogAsync(log);
+            await InsertLogIntoDatabaseAsync(log);
         }
 
         //Internal log for Logging in order to avoid infinite loop if Shared.Infrastructure.CrossCutting.Logging.LogService is called
         //Error messages - most of the time these are Exceptions
-        public void InternalLogErrorMessageAsync(string messageToLog)
+        public async Task InternalLogErrorMessageAsync(string messageToLog)
         {
             var log = new Log("Infrasctructure", "Logging", _internalCorrelationId, messageToLog, LogType.Error, _appSettingsService.Environment.Name);
-            InternalLogAsync(log);
-        }
-
-        private void InternalLogAsync(Log log)
-        {
-            if (!log.HasTextToLog()) return;
-
-            //internal logs are not awaited
-            Task.Run(() =>
-            {
-                try
-                {
-                    _loggingDbContext.Logs.Add(log);
-                    _loggingDbContext.SaveChanges();
-                }
-                catch (Exception e)
-                {
-                    throw new LoggingDbException(e);
-                }
-            });
+            await InsertLogIntoDatabaseAsync(log);
         }
 
         public void InternalFileSystemLog(string messageToLog)

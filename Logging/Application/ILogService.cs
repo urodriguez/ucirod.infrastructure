@@ -9,13 +9,13 @@ namespace Logging.Application
         //Log methods called from Controllers
         Task LogAsync(LogDtoPost logDto);
         Task<IEnumerable<LogSearchResponseDto>> SearchAsync(LogSearchRequestDto logSearchRequestDto);
-        void DeleteOldLogs();
+        Task DeleteOldLogsAsync();
 
         //Log methods called from LogService
         string GetInternalCorrelationId();
-        void InternalLogTraceMessageAsync(string messageToLog);
-        void InternalLogInfoMessageAsync(string messageToLog);
-        void InternalLogErrorMessageAsync(string messageToLog);
+        Task InternalLogTraceMessageAsync(string messageToLog);
+        Task InternalLogInfoMessageAsync(string messageToLog);
+        Task InternalLogErrorMessageAsync(string messageToLog);
         void InternalFileSystemLog(string messageToLog);
     }
 }
