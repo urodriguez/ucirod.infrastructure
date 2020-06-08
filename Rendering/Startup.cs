@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Shared.Infrastructure.CrossCutting.AppSettings;
 using Shared.WebApi;
 
-namespace Reporting
+namespace Rendering
 {
     public class Startup : BaseStartup
     {

@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.WebApi", "Shared.Web
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Infrastructure.CrossCutting", "Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj", "{6401E0BD-3B80-4B01-B6E9-666D38601731}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Reporting", "Reporting\Reporting.csproj", "{48C785F8-D635-4404-A11B-926C13E7DDCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rendering", "Rendering\Rendering.csproj", "{4AB53D94-1DE1-4A4F-8DD9-C0D0B4A00228}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -59,10 +59,10 @@ Global
 		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Release|Any CPU.Build.0 = Release|Any CPU
-		{48C785F8-D635-4404-A11B-926C13E7DDCF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{48C785F8-D635-4404-A11B-926C13E7DDCF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{48C785F8-D635-4404-A11B-926C13E7DDCF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{48C785F8-D635-4404-A11B-926C13E7DDCF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4AB53D94-1DE1-4A4F-8DD9-C0D0B4A00228}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4AB53D94-1DE1-4A4F-8DD9-C0D0B4A00228}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4AB53D94-1DE1-4A4F-8DD9-C0D0B4A00228}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4AB53D94-1DE1-4A4F-8DD9-C0D0B4A00228}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

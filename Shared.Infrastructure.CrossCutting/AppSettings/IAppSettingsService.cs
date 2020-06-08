@@ -13,7 +13,7 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
         string LoggingConnectionString { get; }
         string LoggingApiUrlV1 { get; }
         string LoggingApiUrlV2 { get; }
-        string ReportsDirectory { get; }
-        string ReportingDirectory { get; }
+        string TemplatesRenderedDirectory { get; }
+        string RenderingDirectory { get; }
     }
 }

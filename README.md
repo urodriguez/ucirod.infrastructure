@@ -10,27 +10,28 @@ www.ucirod.infrastructure-test.com:8081
 ## Logging - ENV
 https://localhost:44330 -> Dev (IIS Express - https)
 https://localhost:44330/hangfire
-http://www.ucirod.infrastructure-test.com:8081/logging
-http://www.ucirod.infrastructure-test.com:8081/logging/hangfire -> use cookie = { Name = "infrastructure_hf_dashboard_cookie", Value = "1nfr45tructur3_h4ngf1r3_d45hb0rd" }
+http://152.171.94.90:8081/logging
+http://152.171.94.90:8081/logging/hangfire -> use cookie = { Name = "infrastructure_hf_dashboard_cookie", Value = "1nfr45tructur3_h4ngf1r3_d45hb0rd" }
 
 ## Auditing - ENV
 https://localhost:44387 -> Dev (IIS Express - https)
-http://www.ucirod.infrastructure-test.com:8081/auditing
+http://152.171.94.90:8081/auditing
 
 ## Mailing - ENV
 https://localhost:44386 -> Dev (IIS Express - https)
-http://www.ucirod.infrastructure-test.com:8081/mailing
+http://152.171.94.90:8081/mailing
 
 ## Authentication - ENV
 https://localhost:44315 -> Dev (IIS Express - https)
-http://www.ucirod.infrastructure-test.com:8081/authentication
+http://152.171.94.90:8081/authentication
 
 ## Reporting - ENV
 https://localhost:44341 -> Dev (IIS Express - https)
-http://www.ucirod.infrastructure-test.com:8081/reporting
+http://152.171.94.90:8081/reporting
 
 ## TODO list
 * create script to configure sites on IIS
+* Storing: implement - allow ApplicationSettings, folders and files
 * create client application (React)
   * user register -> receive email
   * user login
@@ -49,7 +50,7 @@ http://www.ucirod.infrastructure-test.com:8081/reporting
 * Authentication: implemenent
 * Authentication: deploy
 * Mailing: implement
-* Authentication:differentiate between invalid token or expired token exception (catching corrrect exception)
+* Authentication: differentiate between invalid token or expired token exception (catching corrrect exception)
 * Authentication: reduce exp token to 1h
 * use credencials validation in all products
 * Jenkins: stop app pool before build
@@ -75,3 +76,4 @@ http://www.ucirod.infrastructure-test.com:8081/reporting
 * refactor AppSettingsService
 * make blocking methods (database, external webservices, I/O) async => spread to controllers, app services, repositories, etc
 * expose hangfire dashboard to allow external request - https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization
+* Rename Reporting to Rendering + allow outputType: pdf and html
