@@ -155,6 +155,11 @@ namespace Shared.WebApi.Controllers
             {
                 _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | FormatException | e.Message={fe.Message} - e.StackTrace={fe}");
                 return BadRequest(fe.Message);
+            }            
+            catch (NotSupportedException nse)
+            {
+                _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | NotSupportedException | e.Message={nse.Message} - e.StackTrace={nse}");
+                return BadRequest(nse.Message);
             }
             catch (InternalServerException ise)
             {

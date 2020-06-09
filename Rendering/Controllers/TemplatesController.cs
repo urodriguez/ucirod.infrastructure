@@ -1,12 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using jsreport.AspNetCore;
 using jsreport.Types;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Rendering.Domain;
+using Shared.Application.Exceptions;
 using Shared.Infrastructure.CrossCutting.AppSettings;
 using Shared.Infrastructure.CrossCutting.Authentication;
 using Shared.Infrastructure.CrossCutting.Logging;
@@ -48,18 +49,15 @@ namespace Rendering.Controllers
 
             return await ExecuteAsync(templateDto.Credential,  async () =>
             {
-                var acceptHeader = Request.Headers["Accept"].ToString();
-                templateDto.OutputFormat = MapAcceptHeaderToTemplateOutputFormat(acceptHeader);
-
                 #region ApplicationService-Layer
-                var template = new Template(templateDto.Content, templateDto.DataBound, templateDto.OutputFormat);
+                var template = new Template(templateDto.Content, templateDto.DataBound, templateDto.Type, templateDto.RenderAs);
 
                 _logService.LogInfoMessageAsync($"{GetType().Name}.{methodName} | Redering template | credential.Id={templateDto.Credential.Id} - status=PENDING");
                 var templateRendered = await _jsReportMvcService.RenderAsync(new RenderRequest
                 {
                     Template = new jsreport.Types.Template
                     {
-                        Recipe = GetRecipeType(template.OutputFormat),
+                        Recipe = GetRecipeType(template.Type),
                         Engine = Engine.JsRender,
                         Content = template.Content
                     },
@@ -67,7 +65,7 @@ namespace Rendering.Controllers
                 });
                 _logService.LogInfoMessageAsync($"{GetType().Name}.{methodName} | Redering template | credential.Id={templateDto.Credential.Id} - status=FINISHED");
 
-                var templateRenderedFileName = $"templateRendered_{templateDto.Credential.Id}_{Guid.NewGuid()}.{template.GetOutputExtension()}";
+                var templateRenderedFileName = $"templateRendered_{templateDto.Credential.Id}_{Guid.NewGuid()}.{template.GetFileExtension()}";
 
                 _logService.LogInfoMessageAsync(
                     $"{GetType().Name}.{methodName} | " +
@@ -91,33 +89,39 @@ namespace Rendering.Controllers
 
                 //TemplateService (from ApplicationService-Layer) retuns templateRenderedFilePath
 
-                return new PhysicalFileResult(templateRenderedFilePath, acceptHeader);
+                return template.RenderAs == RenderAs.Bytes 
+                    ? new PhysicalFileResult(templateRenderedFilePath, GetAcceptHeader(template.Type)) as IActionResult
+                    : Ok(await System.IO.File.ReadAllTextAsync(templateRenderedFilePath)) as IActionResult;
             });
         }
 
-        private static OutputFormat MapAcceptHeaderToTemplateOutputFormat(string acceptHeader)
+        private static string GetAcceptHeader(TemplateType templateType)
         {
-            switch (acceptHeader)
+            switch (templateType)
             {
-                case "application/pdf":
-                    return OutputFormat.Pdf;
-                case "text/html":
-                    return OutputFormat.Html;
-                default:
-                    throw new ArgumentOutOfRangeException($"acceptHeader: {acceptHeader} not supported");
+                case TemplateType.Pdf:
+                    return "application/pdf";
+                case TemplateType.Html:
+                    return "text/html";
+                case TemplateType.PlainText:
+                    return "text/plain";
+                default://is internal error due to the data provided for client was previous validated at Domain Layer
+                    throw new InternalServerException($"Unable to get Accept Header for templateType={templateType}");
             }
         }
 
-        private static Recipe GetRecipeType(OutputFormat outputFormat)
+        private static Recipe GetRecipeType(TemplateType templateType)
         {
-            switch (outputFormat)
+            switch (templateType)
             {
-                case OutputFormat.Pdf:
+                case TemplateType.Pdf:
                     return Recipe.ChromePdf;
-                case OutputFormat.Html:
-                    return Recipe.Html;
-                default:
-                    throw new ArgumentOutOfRangeException($"outputFormat: {outputFormat} not supported");
+                case TemplateType.Html:
+                    return Recipe.Html;                
+                case TemplateType.PlainText:
+                    return Recipe.Text;
+                default://is internal error due to the data provided for client was previous validated at Domain Layer
+                    throw new InternalServerException($"Unable to get JsReport.Recipe type for templateType={templateType}");
             }
         }
     }

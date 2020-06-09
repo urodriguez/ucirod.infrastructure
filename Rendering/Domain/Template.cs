@@ -7,12 +7,12 @@ namespace Rendering.Domain
     {
         public string Content { get; set; }
         public JObject DataBound { get; set; }
-        public OutputFormat OutputFormat { get; set; }
+        public TemplateType Type { get; set; }
+        public RenderAs RenderAs { get; set; }
 
-        public Template(string content, string dataBound, OutputFormat outputFormat)
+        public Template(string content, string dataBound, TemplateType type, RenderAs renderAs)
         {
-            if (string.IsNullOrEmpty(content)) throw new ArgumentNullException($"{typeof(Template).Name}: 'content' field can not be null or empty");
-
+            if (string.IsNullOrEmpty(content)) throw new ArgumentNullException($"{typeof(Template).Name}.Content field can not be null or empty");
             Content = content;
 
             try
@@ -21,15 +21,20 @@ namespace Rendering.Domain
             }
             catch (Exception)
             {
-                throw new FormatException("An error has occurred trying to parse Template.DataBound property. Check Json format");
+                throw new FormatException($"An error has occurred trying to parse {typeof(Template).Name}.DataBound property. Check Json format");
             }
 
-            OutputFormat = outputFormat;
+            if (!Enum.IsDefined(typeof(TemplateType), type)) throw new ArgumentOutOfRangeException($"{typeof(Template).Name}.Type code is invalid");
+            Type = type;
+
+            if (!Enum.IsDefined(typeof(RenderAs), renderAs)) throw new ArgumentOutOfRangeException($"{typeof(Template).Name}.RenderAs code is invalid");
+            if (type == TemplateType.Pdf && renderAs != RenderAs.Bytes) throw new NotSupportedException($"{typeof(Template).Name}: 'Pdf' only can be rendered as bytes result");
+            RenderAs = renderAs;
         }
 
-        public string GetOutputExtension()
+        public string GetFileExtension()
         {
-            return OutputFormat.ToString().ToLower();
+            return Type == TemplateType.PlainText ? "txt" : Type.ToString().ToLower();
         }
     }
 }
