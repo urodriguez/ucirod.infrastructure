@@ -43,9 +43,9 @@ namespace Rendering.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Render([FromBody] TemplateDto templateDto)
+        public async Task<IActionResult> RenderAsync([FromBody] TemplateDto templateDto)
         {
-            var methodName = MethodBase.GetCurrentMethod().Name;
+            const string methodName = "RenderAsync";
 
             return await ExecuteAsync(templateDto.Credential,  async () =>
             {
