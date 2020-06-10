@@ -30,7 +30,6 @@ https://localhost:44341 -> Dev (IIS Express - https)
 http://152.171.94.90:8081/reporting
 
 ## TODO list
-* create script to configure sites on IIS
 * Storing: implement - allow ApplicationSettings, folders and files
 * create client application (React)
   * user register -> receive email
@@ -77,3 +76,4 @@ http://152.171.94.90:8081/reporting
 * make blocking methods (database, external webservices, I/O) async => spread to controllers, app services, repositories, etc
 * expose hangfire dashboard to allow external request - https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization
 * Rename Reporting to Rendering + allow outputType: pdf and html
+* create script to configure sites on IIS
