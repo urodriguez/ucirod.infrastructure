@@ -4,6 +4,6 @@
     {
         Pdf = 0,
         Html = 1,
-        PlainText = 3
+        PlainText = 2
     }
 }
