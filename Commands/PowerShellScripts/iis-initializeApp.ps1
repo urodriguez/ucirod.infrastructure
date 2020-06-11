@@ -18,14 +18,18 @@ function CreateAppPool {
     }
 }
 
-function CreateWebSite {
-    Param([string] $name, [string] $appPool, [string] $physicalPath, [string] $ipAddress, [UInt32] $port)
+function CreateAppWebSite {
+    Param([string] $name)
 
-    if(Test-Path ("IIS:\Sites\" + $name)) {
-        Write-Host "The Web Site '$name' already exists. It creation has been skipped." -ForegroundColor Yellow
+    if(Test-Path ("IIS:\Sites\$name")) {
+        Write-Host "$name Web Site already exists. It creation has been skipped." -ForegroundColor Yellow
     } else {
-        Write-Host "Creating Web Site '$name'" -ForegroundColor Cyan
-        New-WebSite -Name $name -ApplicationPool $appPool -PhysicalPath $physicalPath -IPAddress $ipAddress -Port $port -Force
+        $webSitePhysicalPath = Read-Host "Enter the full path where your '$name' project is hosted. Example: C:\Users\myUserName\UciRod\$name"
+        $ipAddress = Read-Host "Enter the ip address. For localhost: 127.0.0.1"
+        [UInt32]$port = Read-Host "Enter the port. Example: 8080"
+
+        Write-Host "Creating $name Web Site" -ForegroundColor Cyan
+        New-WebSite -Name $name -ApplicationPool $name -PhysicalPath $webSitePhysicalPath -IPAddress $ipAddress -Port $port -Force
     }
 }
 
@@ -35,13 +39,14 @@ function WebSiteContainsWebApplication {
 }
 
 function AddWebApplicationToWebSite {
-    Param([string] $webSite, [string] $name, [string] $appPool, [string] $physicalPath)
+    Param([string] $webSite, [string] $name)
 
     if(WebSiteContainsWebApplication -webSite $webSite -name $name) {
-        Write-Host "The Web Site '$webSite' already contains Web Application '$name'. It adding has been skipped." -ForegroundColor Yellow
+        Write-Host "$webSite Web Site already contains Web Application '$name'. It adding has been skipped." -ForegroundColor Yellow
     } else {
-        Write-Host "Adding Web Application '$name' to Web Site '$webSite'" -ForegroundColor Cyan
-        New-WebApplication -Site $webSite -Name $name -ApplicationPool $appPool -PhysicalPath $physicalPath -Force
+        Write-Host "Adding Web Application '$name' to $webSite Web Site" -ForegroundColor Cyan
+        $webSitePhysicalPath = Get-Website $webSite | Select-Object -expa physicalPath
+        New-WebApplication -Site $webSite -Name $name -ApplicationPool "$webSite.$name" -PhysicalPath "$webSitePhysicalPath\$name" -Force
     }
 }
 #FUNCIONS DECLARATION - END
@@ -50,32 +55,31 @@ $userName = "ENDAVA\URodriguez"
 $secureIdentityPassword = Read-Host "Enter a Password for user identity '$userName'" -AsSecureString
 $credential = New-Object System.Management.Automation.PSCredential($userName, $secureIdentityPassword)
 
+$baseProjectName = "UciRod.Infrastructure"
+$runtimeVersion = ""
+
 #Initialize Application Pools
 Write-Host "Initializing Application Pools" -ForegroundColor Cyan
-CreateAppPool -name "UciRod.Infrastructure" -runtimeVersion "" -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
-CreateAppPool -name "UciRod.Infrastructure.Auditing" -runtimeVersion "" -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
-CreateAppPool -name "UciRod.Infrastructure.Authentication" -runtimeVersion "" -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
-CreateAppPool -name "UciRod.Infrastructure.Logging" -runtimeVersion "" -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
-CreateAppPool -name "UciRod.Infrastructure.Mailing" -runtimeVersion "" -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
-CreateAppPool -name "UciRod.Infrastructure.Rendering" -runtimeVersion "" -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
+CreateAppPool -name $baseProjectName -runtimeVersion $runtimeVersion -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
+CreateAppPool -name "$baseProjectName.Auditing" -runtimeVersion $runtimeVersion -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
+CreateAppPool -name "$baseProjectName.Authentication" -runtimeVersion $runtimeVersion -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
+CreateAppPool -name "$baseProjectName.Logging" -runtimeVersion $runtimeVersion -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
+CreateAppPool -name "$baseProjectName.Mailing" -runtimeVersion $runtimeVersion -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
+CreateAppPool -name "$baseProjectName.Rendering" -runtimeVersion $runtimeVersion -identityName $userName -identityPassword $credential.GetNetworkCredential().Password
 Write-Host "Application Pools initialized" -ForegroundColor Green
-
-$projectPath = Read-Host "Enter the full path where your project is hosted. Example: C:\Users\userName\UciRod\ProjectName"
-$ipAddress = Read-Host "Enter the ip address. For localhost: 127.0.0.1"
-[UInt32]$port = Read-Host "Enter the port. Example: 8080"
 
 #Initialize Web Sites
 Write-Host "-------***-------" -ForegroundColor Cyan
-Write-Host "Initializing Web Sites" -ForegroundColor Cyan
-CreateWebSite -name "UciRod.Infrastructure" -appPool "UciRod.Infrastructure" -physicalPath $projectPath -ipAddress $ipAddress -port $port
-Write-Host "Web Sites initialized" -ForegroundColor Green
+Write-Host "Initializing Web Site" -ForegroundColor Cyan
+CreateAppWebSite -name $baseProjectName
+Write-Host "Web Site initialized" -ForegroundColor Green
 
 #Initialize Web Applications
 Write-Host "-------***-------" -ForegroundColor Cyan
 Write-Host "Initializing Web Applications" -ForegroundColor Cyan
-AddWebApplicationToWebSite -webSite "UciRod.Infrastructure" -name "Auditing" -appPool "UciRod.Infrastructure.Auditing" -physicalPath "$projectPath\Auditing"
-AddWebApplicationToWebSite -webSite "UciRod.Infrastructure" -name "Authentication" -appPool "UciRod.Infrastructure.Authentication" -physicalPath "$projectPath\Authentication"
-AddWebApplicationToWebSite -webSite "UciRod.Infrastructure" -name "Logging" -appPool "UciRod.Infrastructure.Logging" -physicalPath "$projectPath\Logging"
-AddWebApplicationToWebSite -webSite "UciRod.Infrastructure" -name "Mailing" -appPool "UciRod.Infrastructure.Mailing" -physicalPath "$projectPath\Mailing"
-AddWebApplicationToWebSite -webSite "UciRod.Infrastructure" -name "Rendering" -appPool "UciRod.Infrastructure.Rendering" -physicalPath "$projectPath\Rendering"
+AddWebApplicationToWebSite -webSite $baseProjectName -name "Auditing"
+AddWebApplicationToWebSite -webSite $baseProjectName -name "Authentication"
+AddWebApplicationToWebSite -webSite $baseProjectName -name "Logging"
+AddWebApplicationToWebSite -webSite $baseProjectName -name "Mailing"
+AddWebApplicationToWebSite -webSite $baseProjectName -name "Rendering"
 Write-Host "Web Applications initialized" -ForegroundColor Green
