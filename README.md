@@ -77,3 +77,4 @@ http://152.171.94.90:8081/reporting
 * expose hangfire dashboard to allow external request - https://docs.hangfire.io/en/latest/configuration/using-dashboard.html#configuring-authorization
 * Rename Reporting to Rendering + allow outputType: pdf and html
 * create script to configure sites on IIS
+* use Docker - SqlServer

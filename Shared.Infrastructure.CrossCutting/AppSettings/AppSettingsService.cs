@@ -21,8 +21,8 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
             const string sqlServerLoggingDatabase = "UciRod.Infrastructure.Logging";
             string sqlServerLoggingHangfireDatabase = $"{sqlServerLoggingDatabase}.Hangfire";
 
-            const string sqlServerUser = "ucirod-infrastructure-user";
-            const string sqlServerPassword = "uc1r0d-1nfr45tructur3-user";
+            const string sqlServerUser = "ucirod-infrastructure";
+            const string sqlServerPassword = "Uc1R0d-1Nfr4$tructur3";
 
             const string multipleActiveResultSetsTrue = "MultipleActiveResultSets=True";
             const string integratedSecuritySspi = "Integrated Security=SSPI";
@@ -45,7 +45,7 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
                 
                 case "TEST":
                 {
-                    const string sqlServerInstance = "localhost";
+                    const string sqlServerInstance = "localhost,8083";
                     AuditingConnectionString = $"Server={sqlServerInstance};Database={sqlServerAuditingDatabase}-Test;User ID={sqlServerUser};Password={sqlServerPassword};{multipleActiveResultSetsTrue}";
                     _baseInfrastructureApiUrl = $"www.ucirod.infrastructure-test.com:{infrastructureApiPort}";
                     HangfireLoggingConnectionString = $"Server={sqlServerInstance};Database={sqlServerLoggingHangfireDatabase}-Test;{integratedSecuritySspi}";
