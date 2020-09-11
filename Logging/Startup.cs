@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Hangfire;
 using Hangfire.SqlServer;
 using Logging.Application;
@@ -9,8 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Infrastructure.CrossCutting.AppSettings;
-using Shared.Infrastructure.CrossCutting.Authentication;
+using Microsoft.Extensions.Hosting;
+using Shared.Infrastructure.CrossCuttingV3.AppSettings;
+using Shared.Infrastructure.CrossCuttingV3.Authentication;
 
 namespace Logging
 {
@@ -27,7 +28,7 @@ namespace Logging
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+            services.AddControllers();
 
             services.AddApiVersioning(config =>
             {
@@ -38,8 +39,8 @@ namespace Logging
                 config.ReportApiVersions = true;
             });
 
-            services.AddSingleton<IAppSettingsService>(s => new AppSettingsService(Configuration));
-            var appSettingsService = services.BuildServiceProvider().GetService<IAppSettingsService>();
+            var appSettingsService = new AppSettingsService(Configuration);
+            services.AddSingleton<IAppSettingsService>(s => appSettingsService);
 
             services.AddDbContext<LoggingDbContext>(options => options.UseSqlServer(appSettingsService.LoggingConnectionString));
 
@@ -66,7 +67,7 @@ namespace Logging
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILogService logService)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogService logService)
         {
             if (env.IsDevelopment())
             {
@@ -85,7 +86,15 @@ namespace Logging
             RecurringJob.AddOrUpdate("delete-old-logs", () => logService.DeleteOldLogsAsync(), Cron.Daily);
 
             app.UseHttpsRedirection();
-            app.UseMvc();
+
+            app.UseRouting();
+
+            app.UseAuthorization();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
         }
     }
 }

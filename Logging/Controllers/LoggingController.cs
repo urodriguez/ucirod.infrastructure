@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Logging.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Application.Exceptions;
+using Shared.ApplicationV3.Exceptions;
 using ILogService = Logging.Application.ILogService;
 
 namespace Logging.Controllers
@@ -27,11 +27,9 @@ namespace Logging.Controllers
             {
                 var controllerPipelineResult = await controllerPipeline.Invoke();
 
-                await _logService.InternalLogInfoMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | Service Execution Succeed");
-
                 return controllerPipelineResult;
             }
-            catch (AuthenticationFailException afe)
+            catch (AuthenticationFailException)
             {
                 await _logService.InternalLogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | AuthenticationFailException");
                 return Unauthorized();

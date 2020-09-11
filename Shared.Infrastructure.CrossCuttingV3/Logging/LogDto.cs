@@ -1,9 +1,8 @@
-﻿using Logging.Domain;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
+﻿using Shared.Infrastructure.CrossCuttingV3.Authentication;
 
-namespace Logging.Application.Dtos
+namespace Shared.Infrastructure.CrossCuttingV3.Logging
 {
-    public class LogDtoPost
+    internal class LogDto
     {
         public Credential Credential { get; set; }
         public string Application { get; set; }

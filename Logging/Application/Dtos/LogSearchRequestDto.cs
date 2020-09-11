@@ -1,6 +1,6 @@
 ﻿using System;
 using Logging.Domain;
-using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCuttingV3.Authentication;
 
 namespace Logging.Application.Dtos
 {
@@ -9,7 +9,7 @@ namespace Logging.Application.Dtos
         public LogSearchRequestDto()
         {
             Page = 0;
-            PageSize = 10;
+            PageSize = 20;
             SortBy = "creationDate";
             SortOrder = "desc";
         }

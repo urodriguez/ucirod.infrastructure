@@ -1,29 +1,20 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.12" />
+    <PackageReference Include="Hangfire.Core" Version="1.7.12" />
+    <PackageReference Include="Hangfire.SqlServer" Version="1.7.12" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="4.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.7.11" />
-    <PackageReference Include="Hangfire.Core" Version="1.7.11" />
-    <PackageReference Include="Hangfire.SqlServer" Version="1.7.11" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="3.0.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="2.1.11">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Shared.Application\Shared.Application.csproj" />
-    <ProjectReference Include="..\Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj" />
+    <ProjectReference Include="..\Shared.ApplicationV3\Shared.ApplicationV3.csproj" />
+    <ProjectReference Include="..\Shared.Infrastructure.CrossCuttingV3\Shared.Infrastructure.CrossCuttingV3.csproj" />
   </ItemGroup>
 
 </Project>

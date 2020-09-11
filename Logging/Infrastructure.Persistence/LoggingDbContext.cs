@@ -1,7 +1,6 @@
 ﻿using Logging.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Logging.Infrastructure.Persistence
 {
@@ -18,7 +17,7 @@ namespace Logging.Infrastructure.Persistence
             //Allow use plural on DbSet since table name uses singular
             foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
             {
-                entityType.Relational().TableName = entityType.DisplayName();
+                entityType.SetTableName(entityType.DisplayName());
             }
         }
     }

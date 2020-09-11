@@ -8,9 +8,9 @@ using Logging.Application.Dtos;
 using Logging.Domain;
 using Logging.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Shared.Application.Exceptions;
-using Shared.Infrastructure.CrossCutting.AppSettings;
-using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.ApplicationV3.Exceptions;
+using Shared.Infrastructure.CrossCuttingV3.AppSettings;
+using Shared.Infrastructure.CrossCuttingV3.Authentication;
 using LogType = Logging.Domain.LogType;
 
 namespace Logging.Application
@@ -88,19 +88,16 @@ namespace Logging.Application
                 throw new ArgumentOutOfRangeException($"Invalid Log Type on Log request object. Valid types are = {validTypes}");
             }
 
-            Func<Log, bool> searchWordNotNullOrEmptyExp = log => log.Application.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase) ||
-                                                                 log.Project.Equals(searchWord, StringComparison.InvariantCultureIgnoreCase) ||
-                                                                 String.Equals(log.CorrelationId.ToString(), searchWord, StringComparison.CurrentCultureIgnoreCase) ||
-                                                                 log.Text.Contains(searchWord, StringComparison.InvariantCultureIgnoreCase);
-
-            var searchWordExp = !string.IsNullOrEmpty(searchWord) ? searchWordNotNullOrEmptyExp : l => true;
-
             var searchedLogs = _loggingDbContext.Logs.Where(
-                log =>(logType == null ? log.Type == LogType.Trace || log.Type == LogType.Info || log.Type == LogType.Error : log.Type == logType) &&
+                log =>
+                    (logType != null ? log.Type == logType : true) &&
 
-                    searchWordExp(log) &&
+                    (!string.IsNullOrEmpty(searchWord) ? EF.Functions.Like(log.Text, $"%{searchWord}%") ||
+                                                         EF.Functions.Like(log.Application, $"%{searchWord}%") ||
+                                                         EF.Functions.Like(log.Project, $"%{searchWord}%") ||
+                                                         EF.Functions.Like(log.CorrelationId, $"%{searchWord}%") : true) &&
 
-                    (string.IsNullOrEmpty(environment) ? log.Environment == "DEV" || log.Environment == "TEST" || log.Environment == "STAGE" || log.Environment == "PROD" : log.Environment == environment)
+                    (!string.IsNullOrEmpty(environment) ? log.Environment == environment : true)
             );
 
             if (sinceDate == null && toDate == null)

@@ -30,6 +30,7 @@ https://localhost:44341 -> Dev (IIS Express - https)
 http://152.171.94.90:8081/reporting
 
 ## TODO list
+* Migrate Projects to netcore v3.1
 * Storing: implement - allow ApplicationSettings, folders and files
 * create client application (React)
   * user register -> receive email
@@ -44,6 +45,8 @@ http://152.171.94.90:8081/reporting
 * deploy app to cloud - PROD env
 * enqueue failed data
 * dequeue failed data and resend
+* Docker - IIS
+* Docker - Jenkins
 
 ## DONE list
 * Authentication: implemenent

@@ -9,6 +9,7 @@ namespace Logging.Application.Dtos
         {
             Application = l.Application;
             Project = l.Project;
+            CorrelationId = l.CorrelationId;
             Text = l.Text;
             Type = l.Type.ToString();
             CreationDate = l.CreationDate;
@@ -16,6 +17,7 @@ namespace Logging.Application.Dtos
 
         public string Application { get; set; }
         public string Project { get; set; }
+        public string CorrelationId { get; set; }
         public string Text { get; set; }
         public string Type { get; set; }
         public DateTime CreationDate { get; set; }
