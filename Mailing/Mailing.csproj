@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared.Infrastructure.CrossCuttingV3\Shared.Infrastructure.CrossCuttingV3.csproj" />
     <ProjectReference Include="..\Shared.WebApiV3\Shared.WebApiV3.csproj" />
   </ItemGroup>
 

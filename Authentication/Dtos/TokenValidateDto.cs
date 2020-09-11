@@ -1,4 +1,4 @@
-﻿using Shared.Infrastructure.CrossCutting.Authentication;
+﻿using Shared.Infrastructure.CrossCuttingV3.Authentication;
 
 namespace Authentication.Dtos
 {

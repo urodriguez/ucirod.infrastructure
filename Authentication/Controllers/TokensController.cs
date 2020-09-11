@@ -8,9 +8,9 @@ using Authentication.Domain;
 using Authentication.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
-using Shared.Infrastructure.CrossCutting.Authentication;
-using Shared.Infrastructure.CrossCutting.Logging;
-using Shared.WebApi.Controllers;
+using Shared.Infrastructure.CrossCuttingV3.Authentication;
+using Shared.Infrastructure.CrossCuttingV3.Logging;
+using Shared.WebApiV3.Controllers;
 
 namespace Authentication.Controllers
 {
@@ -100,7 +100,7 @@ namespace Authentication.Controllers
                         })
                     });
                 }
-                catch (SecurityTokenInvalidLifetimeException stile)
+                catch (SecurityTokenInvalidLifetimeException)
                 {
                     _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name}  | SecurityTokenInvalidLifetimeException | credential.Id={tokenValidateDto.Credential.Id}");
                     return Ok(new

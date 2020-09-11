@@ -42,7 +42,7 @@ namespace Shared.WebApiV3.Controllers
 
                 return controllerPipelineResult;
             }
-            catch (AuthenticationFailException afe)
+            catch (AuthenticationFailException)
             {
                 _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | AuthenticationFailException");
                 return Unauthorized();
@@ -116,7 +116,7 @@ namespace Shared.WebApiV3.Controllers
 
                 return controllerPipelineResult;
             }
-            catch (AuthenticationFailException afe)
+            catch (AuthenticationFailException)
             {
                 _logService.LogErrorMessageAsync($"{GetType().Name}.{MethodBase.GetCurrentMethod().Name} | AuthenticationFailException");
                 return Unauthorized();
