@@ -1,5 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
-using Shared.WebApi;
+using Microsoft.Extensions.Configuration;
+using Shared.WebApiV3;
 
 namespace Mailing
 {

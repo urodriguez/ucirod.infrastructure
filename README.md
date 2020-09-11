@@ -45,8 +45,7 @@ http://152.171.94.90:8081/reporting
 * deploy app to cloud - PROD env
 * enqueue failed data
 * dequeue failed data and resend
-* Docker - IIS
-* Docker - Jenkins
+* Docker: migrate Projects using docker compose
 
 ## DONE list
 * Authentication: implemenent
