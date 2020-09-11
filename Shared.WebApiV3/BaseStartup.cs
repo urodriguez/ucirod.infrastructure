@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Shared.Infrastructure.CrossCuttingV3.AppSettings;
 using Shared.Infrastructure.CrossCuttingV3.Authentication;
 using Shared.Infrastructure.CrossCuttingV3.Logging;
@@ -38,7 +39,7 @@ namespace Shared.WebApiV3
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public virtual void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
             {
