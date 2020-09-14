@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Shared.Infrastructure.CrossCuttingV3.AppSettings;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
-using Shared.Infrastructure.CrossCuttingV3.Logging;
+using Shared.Infrastructure.CrossCutting.AppSettings;
+using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
 
-namespace Shared.WebApiV3
+namespace Shared.WebApi
 {
     public class BaseStartup
     {

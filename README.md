@@ -30,7 +30,6 @@ https://localhost:44341 -> Dev (IIS Express - https)
 http://152.171.94.90:8081/reporting
 
 ## TODO list
-* Migrate Projects to netcore v3.1
 * Auditing: e2e test for API
 * Storing: implement - allow ApplicationSettings, folders and files
 * Create PortalApi
@@ -82,3 +81,4 @@ http://152.171.94.90:8081/reporting
 * Rename Reporting to Rendering + allow outputType: pdf and html
 * create script to configure sites on IIS
 * use Docker - SqlServer
+* Migrate Projects to netcore v3.1

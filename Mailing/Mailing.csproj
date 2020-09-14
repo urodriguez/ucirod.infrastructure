@@ -9,7 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared.WebApiV3\Shared.WebApiV3.csproj" />
+    <ProjectReference Include="..\Shared.WebApi\Shared.WebApi.csproj" />
   </ItemGroup>
 
 

@@ -5,11 +5,11 @@ VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging", "Logging\Logging.csproj", "{CA475BF0-9607-4023-B5C9-2811FDEB43B6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.ApplicationV3", "Shared.ApplicationV3\Shared.ApplicationV3.csproj", "{52FE6A7D-B32B-4278-B148-41A95E971F52}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Application", "Shared.Application\Shared.Application.csproj", "{52FE6A7D-B32B-4278-B148-41A95E971F52}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Infrastructure.CrossCuttingV3", "Shared.Infrastructure.CrossCuttingV3\Shared.Infrastructure.CrossCuttingV3.csproj", "{85C582EB-DDFD-46B3-9764-3332AFAA7B22}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Infrastructure.CrossCutting", "Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj", "{85C582EB-DDFD-46B3-9764-3332AFAA7B22}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.WebApiV3", "Shared.WebApiV3\Shared.WebApiV3.csproj", "{FA8AF361-53EF-4F5A-98CA-5660715BAB11}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.WebApi", "Shared.WebApi\Shared.WebApi.csproj", "{FA8AF361-53EF-4F5A-98CA-5660715BAB11}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mailing", "Mailing\Mailing.csproj", "{2592C90B-93D0-4C7F-9FD9-E30F16AE5259}"
 EndProject

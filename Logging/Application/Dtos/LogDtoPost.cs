@@ -1,5 +1,5 @@
 ﻿using Logging.Domain;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging.Application.Dtos
 {

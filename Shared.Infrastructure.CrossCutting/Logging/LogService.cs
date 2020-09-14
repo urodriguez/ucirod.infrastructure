@@ -3,9 +3,9 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using RestSharp;
-using Shared.Infrastructure.CrossCuttingV3.AppSettings;
+using Shared.Infrastructure.CrossCutting.AppSettings;
 
-namespace Shared.Infrastructure.CrossCuttingV3.Logging
+namespace Shared.Infrastructure.CrossCutting.Logging
 {
     public class LogService : ILogService
     {

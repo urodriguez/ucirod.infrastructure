@@ -4,11 +4,11 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shared.ApplicationV3.Exceptions;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
-using Shared.Infrastructure.CrossCuttingV3.Logging;
+using Shared.Application.Exceptions;
+using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
 
-namespace Shared.WebApiV3.Controllers
+namespace Shared.WebApi.Controllers
 {
     [Route("api/v{version:apiVersion}/[controller]")]
     [ApiController]

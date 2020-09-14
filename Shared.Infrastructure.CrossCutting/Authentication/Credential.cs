@@ -1,4 +1,4 @@
-﻿namespace Shared.Infrastructure.CrossCuttingV3.Authentication
+﻿namespace Shared.Infrastructure.CrossCutting.Authentication
 {
     public class Credential
     {

@@ -5,11 +5,11 @@ using jsreport.AspNetCore;
 using jsreport.Types;
 using Microsoft.AspNetCore.Mvc;
 using Rendering.Domain;
-using Shared.ApplicationV3.Exceptions;
-using Shared.Infrastructure.CrossCuttingV3.AppSettings;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
-using Shared.Infrastructure.CrossCuttingV3.Logging;
-using Shared.WebApiV3.Controllers;
+using Shared.Application.Exceptions;
+using Shared.Infrastructure.CrossCutting.AppSettings;
+using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
+using Shared.WebApi.Controllers;
 using Template = Rendering.Domain.Template;
 
 namespace Rendering.Controllers

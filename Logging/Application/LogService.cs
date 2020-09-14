@@ -8,9 +8,9 @@ using Logging.Application.Dtos;
 using Logging.Domain;
 using Logging.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
-using Shared.ApplicationV3.Exceptions;
-using Shared.Infrastructure.CrossCuttingV3.AppSettings;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
+using Shared.Application.Exceptions;
+using Shared.Infrastructure.CrossCutting.AppSettings;
+using Shared.Infrastructure.CrossCutting.Authentication;
 using LogType = Logging.Domain.LogType;
 
 namespace Logging.Application

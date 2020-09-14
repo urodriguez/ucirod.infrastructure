@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Shared.ApplicationV3.Exceptions;
+using Shared.Application.Exceptions;
 
 namespace Auditing.Domain
 {

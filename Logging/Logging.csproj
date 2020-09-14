@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared.ApplicationV3\Shared.ApplicationV3.csproj" />
-    <ProjectReference Include="..\Shared.Infrastructure.CrossCuttingV3\Shared.Infrastructure.CrossCuttingV3.csproj" />
+    <ProjectReference Include="..\Shared.Application\Shared.Application.csproj" />
+    <ProjectReference Include="..\Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj" />
   </ItemGroup>
 
 </Project>

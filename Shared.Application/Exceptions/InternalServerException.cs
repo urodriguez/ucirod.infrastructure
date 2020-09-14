@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Shared.ApplicationV3.Exceptions
+namespace Shared.Application.Exceptions
 {
     public class InternalServerException : Exception
     {

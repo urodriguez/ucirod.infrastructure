@@ -1,4 +1,4 @@
-﻿namespace Shared.Infrastructure.CrossCuttingV3.AppSettings
+﻿namespace Shared.Infrastructure.CrossCutting.AppSettings
 {
     public class InsfrastructureEnvironment
     {

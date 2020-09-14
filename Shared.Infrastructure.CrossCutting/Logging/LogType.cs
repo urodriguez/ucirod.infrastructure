@@ -1,4 +1,4 @@
-﻿namespace Shared.Infrastructure.CrossCuttingV3.Logging
+﻿namespace Shared.Infrastructure.CrossCutting.Logging
 {
     public enum LogType
     {

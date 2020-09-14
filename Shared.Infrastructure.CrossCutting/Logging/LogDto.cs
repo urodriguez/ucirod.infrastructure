@@ -1,6 +1,6 @@
-﻿using Shared.Infrastructure.CrossCuttingV3.Authentication;
+﻿using Shared.Infrastructure.CrossCutting.Authentication;
 
-namespace Shared.Infrastructure.CrossCuttingV3.Logging
+namespace Shared.Infrastructure.CrossCutting.Logging
 {
     internal class LogDto
     {

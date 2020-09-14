@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Shared.Infrastructure.CrossCuttingV3.AppSettings;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
+using Shared.Infrastructure.CrossCutting.AppSettings;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
 namespace Logging
 {

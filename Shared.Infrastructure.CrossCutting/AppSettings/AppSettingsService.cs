@@ -2,9 +2,9 @@
 using System.IO;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
+using Shared.Infrastructure.CrossCutting.Authentication;
 
-namespace Shared.Infrastructure.CrossCuttingV3.AppSettings
+namespace Shared.Infrastructure.CrossCutting.AppSettings
 {
     public class AppSettingsService : IAppSettingsService
     {

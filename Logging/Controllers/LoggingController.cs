@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Logging.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Shared.ApplicationV3.Exceptions;
+using Shared.Application.Exceptions;
 using ILogService = Logging.Application.ILogService;
 
 namespace Logging.Controllers

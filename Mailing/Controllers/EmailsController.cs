@@ -6,9 +6,9 @@ using Mailing.Domain;
 using Mailing.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using MimeKit;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
-using Shared.Infrastructure.CrossCuttingV3.Logging;
-using Shared.WebApiV3.Controllers;
+using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
+using Shared.WebApi.Controllers;
 using Attachment = Mailing.Domain.Attachment;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 

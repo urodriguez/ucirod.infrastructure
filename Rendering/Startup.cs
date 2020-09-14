@@ -3,8 +3,8 @@ using jsreport.Binary;
 using jsreport.Local;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Infrastructure.CrossCuttingV3.AppSettings;
-using Shared.WebApiV3;
+using Shared.Infrastructure.CrossCutting.AppSettings;
+using Shared.WebApi;
 
 namespace Rendering
 {

@@ -1,7 +1,7 @@
 ﻿using Auditing.Infrastructure.Persistence;
-using Shared.Infrastructure.CrossCuttingV3.Authentication;
-using Shared.Infrastructure.CrossCuttingV3.Logging;
-using Shared.WebApiV3.Controllers;
+using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCutting.Logging;
+using Shared.WebApi.Controllers;
 
 namespace Auditing.Controllers
 {
