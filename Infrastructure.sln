@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auditing", "Auditing\Auditing.csproj", "{4C423A48-8A5D-4B51-A1B5-2F032F53501E}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RESTfulApi", "RESTfulApi\RESTfulApi.csproj", "{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Application", "Shared.Application\Shared.Application.csproj", "{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}"
@@ -25,7 +23,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.WebApiV3", "Shared.W
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Mailing", "Mailing\Mailing.csproj", "{2592C90B-93D0-4C7F-9FD9-E30F16AE5259}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Authentication", "Authentication\Authentication.csproj", "{1EAE7CE5-DC28-4E52-A8AC-585F37C5B9D0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authentication", "Authentication\Authentication.csproj", "{1EAE7CE5-DC28-4E52-A8AC-585F37C5B9D0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Auditing", "Auditing\Auditing.csproj", "{0F16EE7C-27FD-4F16-8924-F4960A832031}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,10 +33,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{4C423A48-8A5D-4B51-A1B5-2F032F53501E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4C423A48-8A5D-4B51-A1B5-2F032F53501E}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4C423A48-8A5D-4B51-A1B5-2F032F53501E}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4C423A48-8A5D-4B51-A1B5-2F032F53501E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -81,6 +77,10 @@ Global
 		{1EAE7CE5-DC28-4E52-A8AC-585F37C5B9D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1EAE7CE5-DC28-4E52-A8AC-585F37C5B9D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1EAE7CE5-DC28-4E52-A8AC-585F37C5B9D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F16EE7C-27FD-4F16-8924-F4960A832031}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F16EE7C-27FD-4F16-8924-F4960A832031}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F16EE7C-27FD-4F16-8924-F4960A832031}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F16EE7C-27FD-4F16-8924-F4960A832031}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

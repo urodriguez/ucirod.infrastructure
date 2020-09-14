@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Auditing.Domain;
 
 namespace Auditing.Dtos
@@ -7,7 +6,7 @@ namespace Auditing.Dtos
     public class AuditSearchResponseDto
     {
         public string User { get; set; }
-        public IEnumerable<EntityChange> Changes { get; set; }
+        public dynamic Changes { get; set; }
         public AuditAction Action { get; set; }
         public DateTime CreationDate { get; set; }
     }

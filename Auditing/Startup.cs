@@ -1,10 +1,10 @@
-﻿using Auditing.Infrastructure.CrossCutting;
+using Auditing.Infrastructure.CrossCutting;
 using Auditing.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Infrastructure.CrossCutting.AppSettings;
-using Shared.WebApi;
+using Shared.Infrastructure.CrossCuttingV3.AppSettings;
+using Shared.WebApiV3;
 
 namespace Auditing
 {

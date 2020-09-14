@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Auditing.Domain;
@@ -8,8 +7,8 @@ using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using Shared.Infrastructure.CrossCutting.Authentication;
-using Shared.Infrastructure.CrossCutting.Logging;
+using Shared.Infrastructure.CrossCuttingV3.Authentication;
+using Shared.Infrastructure.CrossCuttingV3.Logging;
 
 namespace Auditing.Controllers
 {
@@ -82,17 +81,19 @@ namespace Auditing.Controllers
                 }
                 _logService.LogInfoMessageAsync($"AuditController.Get | Sorting done");
 
-                var pagedAudits = sortedAudits.Skip(page * pageSize).Take(pageSize);
+                var pagedAudits = await sortedAudits.Skip(page * pageSize).Take(pageSize).ToListAsync();
                 _logService.LogInfoMessageAsync($"AuditController.Get | Paging done");
 
-                return Ok(await pagedAudits.Select(pa => new AuditSearchResponseDto
+                return Ok(pagedAudits.Select(pa => new AuditSearchResponseDto
                 {
                     User = pa.User,
-                    Changes = JsonConvert.DeserializeObject<IEnumerable<EntityChange>>(pa.Changes),
+                    Changes = JsonConvert.DeserializeObject<dynamic>(pa.Changes),
                     Action = pa.Action,
                     CreationDate = pa.CreationDate
-                }).ToListAsync());
+                }));
             });
         }
+
+
     }
 }

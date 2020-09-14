@@ -8,8 +8,8 @@ using Auditing.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
-using Shared.Infrastructure.CrossCutting.Authentication;
-using Shared.Infrastructure.CrossCutting.Logging;
+using Shared.Infrastructure.CrossCuttingV3.Authentication;
+using Shared.Infrastructure.CrossCuttingV3.Logging;
 
 namespace Auditing.Controllers
 {

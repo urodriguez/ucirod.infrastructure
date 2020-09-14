@@ -1,21 +1,17 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="wwwroot\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="JsonDiffPatch.Net" Version="2.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.4" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj" />
-    <ProjectReference Include="..\Shared.WebApi\Shared.WebApi.csproj" />
+    <ProjectReference Include="..\Shared.WebApiV3\Shared.WebApiV3.csproj" />
   </ItemGroup>
+
 
 </Project>

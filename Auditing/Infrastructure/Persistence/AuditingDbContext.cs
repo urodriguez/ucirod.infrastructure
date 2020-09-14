@@ -1,7 +1,6 @@
 ﻿using Auditing.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace Auditing.Infrastructure.Persistence
 {
@@ -18,9 +17,8 @@ namespace Auditing.Infrastructure.Persistence
             //Allow use plural on DbSet since table name uses singular
             foreach (IMutableEntityType entityType in modelBuilder.Model.GetEntityTypes())
             {
-                entityType.Relational().TableName = entityType.DisplayName();
+                entityType.SetTableName(entityType.DisplayName());
             }
         }
-
     }
 }

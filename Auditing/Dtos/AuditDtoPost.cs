@@ -1,5 +1,5 @@
 ﻿using Auditing.Domain;
-using Shared.Infrastructure.CrossCutting.Authentication;
+using Shared.Infrastructure.CrossCuttingV3.Authentication;
 
 namespace Auditing.Dtos
 {
