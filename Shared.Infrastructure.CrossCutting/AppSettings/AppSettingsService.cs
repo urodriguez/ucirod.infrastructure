@@ -46,10 +46,10 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
                 case "TEST":
                 {
                     const string sqlServerInstance = "localhost,8083";
-                    AuditingConnectionString = $"Server={sqlServerInstance};Database={sqlServerAuditingDatabase}-Test;User ID={sqlServerUser};Password={sqlServerPassword};{multipleActiveResultSetsTrue}";
+                    AuditingConnectionString = $"Server={sqlServerInstance};Database={sqlServerAuditingDatabase};User ID={sqlServerUser};Password={sqlServerPassword};{multipleActiveResultSetsTrue}";
                     _baseInfrastructureApiUrl = $"www.ucirod.infrastructure-test.com:{infrastructureApiPort}";
-                    HangfireLoggingConnectionString = $"Server={sqlServerInstance};Database={sqlServerLoggingHangfireDatabase}-Test;{integratedSecuritySspi}";
-                    LoggingConnectionString = $"Server={sqlServerInstance};Database={sqlServerLoggingDatabase}-Test;User ID={sqlServerUser};Password={sqlServerPassword};{multipleActiveResultSetsTrue}";
+                    HangfireLoggingConnectionString = $"Server={sqlServerInstance};Database={sqlServerLoggingHangfireDatabase};{integratedSecuritySspi}";
+                    LoggingConnectionString = $"Server={sqlServerInstance};Database={sqlServerLoggingDatabase};User ID={sqlServerUser};Password={sqlServerPassword};{multipleActiveResultSetsTrue}";
                     
                     break;
                 }                
