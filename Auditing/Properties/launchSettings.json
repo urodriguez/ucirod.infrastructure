@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "AuditingV3": {
+    "Auditing": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/v1.0/audits",

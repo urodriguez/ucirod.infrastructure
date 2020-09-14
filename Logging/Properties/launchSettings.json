@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "LoggingV3": {
+    "Logging": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "weatherforecast",

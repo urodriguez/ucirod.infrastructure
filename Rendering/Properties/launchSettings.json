@@ -17,7 +17,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "RenderingV3": {
+    "Rendering": {
       "commandName": "Project",
       "launchBrowser": true,
       "launchUrl": "api/v1.0/templates",
