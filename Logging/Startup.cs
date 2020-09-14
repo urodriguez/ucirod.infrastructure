@@ -59,7 +59,8 @@ namespace Logging
                     QueuePollInterval = TimeSpan.Zero,
                     UseRecommendedIsolationLevel = true,
                     UsePageLocksOnDequeue = true,
-                    DisableGlobalLocks = true
+                    DisableGlobalLocks = true,
+                    PrepareSchemaIfNecessary = true
                 }));
 
             // Add the processing server as IHostedService

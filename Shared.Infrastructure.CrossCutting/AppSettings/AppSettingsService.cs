@@ -48,7 +48,7 @@ namespace Shared.Infrastructure.CrossCutting.AppSettings
                     const string sqlServerInstance = "localhost,8083";
                     AuditingConnectionString = $"Server={sqlServerInstance};Database={sqlServerAuditingDatabase};User ID={sqlServerUser};Password={sqlServerPassword};{multipleActiveResultSetsTrue}";
                     _baseInfrastructureApiUrl = $"www.ucirod.infrastructure-test.com:{infrastructureApiPort}";
-                    HangfireLoggingConnectionString = $"Server={sqlServerInstance};Database={sqlServerLoggingHangfireDatabase};{integratedSecuritySspi}";
+                    HangfireLoggingConnectionString = $"Server={sqlServerInstance};Database={sqlServerLoggingHangfireDatabase};User ID={sqlServerUser};Password={sqlServerPassword}";
                     LoggingConnectionString = $"Server={sqlServerInstance};Database={sqlServerLoggingDatabase};User ID={sqlServerUser};Password={sqlServerPassword};{multipleActiveResultSetsTrue}";
                     
                     break;
