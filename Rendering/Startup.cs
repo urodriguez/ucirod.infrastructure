@@ -1,10 +1,10 @@
-﻿using jsreport.AspNetCore;
+using jsreport.AspNetCore;
 using jsreport.Binary;
 using jsreport.Local;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Shared.Infrastructure.CrossCutting.AppSettings;
-using Shared.WebApi;
+using Shared.Infrastructure.CrossCuttingV3.AppSettings;
+using Shared.WebApiV3;
 
 namespace Rendering
 {

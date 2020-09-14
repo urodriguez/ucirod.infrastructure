@@ -1,17 +1,15 @@
 ﻿using System;
 using System.IO;
-using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using jsreport.AspNetCore;
 using jsreport.Types;
 using Microsoft.AspNetCore.Mvc;
 using Rendering.Domain;
-using Shared.Application.Exceptions;
-using Shared.Infrastructure.CrossCutting.AppSettings;
-using Shared.Infrastructure.CrossCutting.Authentication;
-using Shared.Infrastructure.CrossCutting.Logging;
-using Shared.WebApi.Controllers;
+using Shared.ApplicationV3.Exceptions;
+using Shared.Infrastructure.CrossCuttingV3.AppSettings;
+using Shared.Infrastructure.CrossCuttingV3.Authentication;
+using Shared.Infrastructure.CrossCuttingV3.Logging;
+using Shared.WebApiV3.Controllers;
 using Template = Rendering.Domain.Template;
 
 namespace Rendering.Controllers
@@ -79,7 +77,7 @@ namespace Rendering.Controllers
                     templateRendered.Content.CopyTo(fs);
                 }
 
-                Task.Run(async () => //delete file after 2 seconds, ensuring that the controller sent data to client
+                Task.Run(async () => //delete temp file after 2 seconds, ensuring that the controller sent data to client
                 {
                     if (!System.IO.File.Exists(templateRenderedFilePath)) return;
                     await Task.Delay(2000);
