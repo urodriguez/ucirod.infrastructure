@@ -33,7 +33,8 @@ http://152.171.94.90:8081/reporting
 * Migrate Projects to netcore v3.1
 * Auditing: e2e test for API
 * Storing: implement - allow ApplicationSettings, folders and files
-* create client application (React)
+* Create PortalApi
+* Create Portal Web Client Application (React)
   * user register -> receive email
   * user login
   * user see list available infrastructure services

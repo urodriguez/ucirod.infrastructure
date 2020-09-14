@@ -3,14 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RESTfulApi", "RESTfulApi\RESTfulApi.csproj", "{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Application", "Shared.Application\Shared.Application.csproj", "{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.WebApi", "Shared.WebApi\Shared.WebApi.csproj", "{24745F3E-0F4A-49EB-A969-8337330C3EC7}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.Infrastructure.CrossCutting", "Shared.Infrastructure.CrossCutting\Shared.Infrastructure.CrossCutting.csproj", "{6401E0BD-3B80-4B01-B6E9-666D38601731}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Logging", "Logging\Logging.csproj", "{CA475BF0-9607-4023-B5C9-2811FDEB43B6}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared.ApplicationV3", "Shared.ApplicationV3\Shared.ApplicationV3.csproj", "{52FE6A7D-B32B-4278-B148-41A95E971F52}"
@@ -25,7 +17,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Authentication", "Authentic
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Auditing", "Auditing\Auditing.csproj", "{0F16EE7C-27FD-4F16-8924-F4960A832031}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rendering", "Rendering\Rendering.csproj", "{50141A40-CEED-4424-A529-33130BE1E673}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rendering", "Rendering\Rendering.csproj", "{50141A40-CEED-4424-A529-33130BE1E673}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,22 +25,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BA28B9EC-EB7F-49B1-A9F9-D1085C8035F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{20D6D4FD-4D12-4995-B1E2-68ADEDBF4676}.Release|Any CPU.Build.0 = Release|Any CPU
-		{24745F3E-0F4A-49EB-A969-8337330C3EC7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{24745F3E-0F4A-49EB-A969-8337330C3EC7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{24745F3E-0F4A-49EB-A969-8337330C3EC7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{24745F3E-0F4A-49EB-A969-8337330C3EC7}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6401E0BD-3B80-4B01-B6E9-666D38601731}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA475BF0-9607-4023-B5C9-2811FDEB43B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{CA475BF0-9607-4023-B5C9-2811FDEB43B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA475BF0-9607-4023-B5C9-2811FDEB43B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
